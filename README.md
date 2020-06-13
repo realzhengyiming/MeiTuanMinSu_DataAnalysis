@@ -63,7 +63,12 @@ scrapy_djangoitem
 
 # 结果示范
 
-![](example1.png)
+![预览](example1.png)
+
+预览地址：http://45.79.96.167 （单机勿压，供预览之用）
+
+预览账号：testor  
+预览密码： Testor66@22333
 
 # todo
 
