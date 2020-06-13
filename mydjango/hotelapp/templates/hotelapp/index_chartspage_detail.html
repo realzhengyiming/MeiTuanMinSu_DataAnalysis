@@ -1,0 +1,235 @@
+{% extends 'hotelapp/index_charts.html' %}
+{#多app的方案中template需要这样来引入，view中也是需要加上#}
+{% block title %}
+{{ app_name }}
+{% endblock %}
+
+
+{#{% block drawer_body %}mdui-drawer-body-left{% endblock %}#}
+
+{% block drawer_icon %}
+{% endblock %}
+
+{% block drawer %}
+
+{% endblock %}
+{#其中一个部分#}
+
+
+
+
+{% block app_name %}
+{{ app_name }}
+{% endblock %}
+
+{% block name %}
+{{ app_name }}
+{% endblock %}
+
+{% block content %}
+
+
+
+<div class="mdui-container">
+    {% for membership in house.house_host.all %}
+    <h3>{{ membership.host_name }}</h3>
+{#    {{ membership.date_joined }}#}
+    {% endfor %}
+<div class="mdui-card-header" style="margin-top: 15px;">
+    <img class="mdui-card-header-avatar" src="{{ house.0.house_img }}"/>
+    <div class="mdui-card-header-title">{{ house.0.house_title }}</div>
+    <div class="mdui-card-header-subtitle"> {% for item in house.0.house_host.all %}
+    &nbsp; &nbsp;<span class="mdui-text-color-blue-500">房东:{{ item.host_name }}&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;房源地址:
+            {{house.0.house_location_text}}&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;房屋类型:{{house.0.house_type}}
+        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;可住人数:{{house.0.house_capacity}}</span>
+      <!--{{item.host_replayRate}}-->
+      <!--{{item.host_commentNum}}-->
+    {% endfor %}</div>
+  </div>
+<!--<img class="mdui-img-fluid mdui-center mdui-img-rounded " src="{{ house.0.house_img }}"-->
+<!--style="width: 800px;height: auto;margin-top: 50px;"/>-->
+
+ <!-- 卡片的媒体内容，可以包含图片、视频等媒体内容，以及标题、副标题 -->
+  <div class="mdui-card-media">
+    <img src="{{ house.0.house_img }}"/>
+
+
+
+    <!-- 卡片中可以包含一个或多个菜单按钮 -->
+    <div class="mdui-card-menu">
+        <div class="mdui-chip">
+  <span class="mdui-chip-icon"><i class="mdui-text-color-red mdui-icon material-icons">favorite</i></span>
+  <span class="mdui-chip-title">喜欢数：{{ house.0.house_favcount }}
+
+  </span>
+            <!--找到最后一个房子的喜欢数读取出来-->
+</div>
+ <!--<button class="mdui-btn mdui-btn-icon mdui-text-color-white"><i class="mdui-icon material-icons">-->
+        <!--<i class="mdui-icon material-icons">favorite</i>-->
+{#{{ house.0.house_favcount }}</button>#}
+    </div>
+  </div>
+
+
+
+{#    这儿才是内容的区域呢#}
+    <div class="mdui-container mdui-center" style="margin-top: 50px;">
+{#    <h1>详情</h1>#}
+{#        <h1 class="doc-title mdui-text-color-theme mdui-text-center">房源详情</h1>#}
+   <div class="label mdui-center mdui-text-center "style="margin-top: 50px;">
+     {% if labels %}
+       <h2 class="mdui-text-center">房源标签</h2>
+
+        {% for label in  labels %}
+        {% if label.label_type == 1 %}
+            <div class="mdui-chip" mdui-tooltip="{content: '{{ label.label_desc }}', position: 'bottom'}">
+            <span class="mdui-chip-title mdui-text-color-red" >{{ label.label_name }}</span>
+        </div>
+        {% else %}
+            <div class="mdui-chip" mdui-tooltip="{content: '{{ label.label_desc }}', position: 'bottom'}">
+            <span class=" mdui-chip-title mdui-text-color-green" >{{ label.label_name }}</span>
+        </div>
+        {% endif %}
+    {% endfor %}
+   {% endif %}
+    </div>
+
+{% if facility %}
+    <div style="margin-top: 50px;" class="mdui-center mdui-text-center">
+    <h2>配套设施</h2>
+     {% for label in  facility %}
+        <div class="mdui-chip">
+            <span class="mdui-chip-title mdui-text-color-blue" >{{ label.facility_name }}</span>
+        </div>
+     {% endfor %}
+    </div>
+{% endif %}
+
+
+<div id="timeline-hide">
+    <div class="mdui-center mdui-spinner mdui-spinner-colorful" style="margin-top: 200px;"></div>
+</div>
+    <div class="mdui-center" id="timeline" style="width:800px; height:400px;margin-top: 50px;display: none;"></div>
+    <script>
+        var timeline_chart = echarts.init(document.getElementById('timeline'), 'white', {renderer: 'canvas'});
+        $(
+            function () {
+                fetchData_timeline(timeline_chart);
+                //{#setInterval(fetchData_timeline, 10000);#}
+            }
+        );
+        function fetchData_timeline() {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'hotelapp:houseTimeLineView' %}?house_id={{ house_id }}",
+                dataType: 'json',
+                async: true,
+                timeout:5000,
+
+                success: function (result) {
+                    timeline_chart.setOption(result.data);
+                    $('#timeline-hide').css('display','none');  // 组件完全隐藏，不占用显示时占用的位置
+		            $('#timeline').css('display','block');   //在设置组件可以看
+                },
+                error : function(XMLHttpRequest,status) { //请求完成后最终执行参数
+                    if (status === 'timeout') {
+                        //超时,status还有success,error等值的情况
+                        $.ajax(this).abort();
+                        console.log("超时,已重试");
+                        $.ajax(this);
+                        return
+                    }
+                }
+            });
+        }
+    </script>
+
+
+<div id="drawmap-hide">
+    <div class="mdui-center mdui-spinner mdui-spinner-colorful" style="margin-top: 200px;"></div>
+</div>
+<div class="mdui-center" id="drawmap" style="width:800px; height:400px;margin-top: 50px;display:none;"></div>
+    <script>
+        var drawmap_chart = echarts.init(document.getElementById('drawmap'), 'white', {renderer: 'canvas'});
+        $(
+            function () {
+                fetchData_drawmap(drawmap_chart);
+                //setInterval(fetchData_drawmap, 10000);
+            }
+        );
+        function fetchData_drawmap() {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'hotelapp:houseScoreLine' %}?house_id={{ house_id }}",
+                dataType: 'json',
+                async: true,
+                timeout:5000,
+
+                success: function (result) {
+                    drawmap_chart.setOption(result.data);
+                    $('#drawmap-hide').css('display','none');  // 组件完全隐藏，不占用显示时占用的位置
+		            $('#drawmap').css('display','block');   //在设置组件可以看
+                },
+                error : function(XMLHttpRequest,status) { //请求完成后最终执行参数
+                    if (status === 'timeout') {
+                        //超时,status还有success,error等值的情况
+                        $.ajax(this).abort();
+                        console.log("超时,已重试");
+                        $.ajax(this);
+                        return
+                    }
+                }
+            });
+        }
+    </script>
+
+           <a class="mdui-text-center mdui-center" href="{{ house.0.house_url }}" target="_blank" style="margin: 10px;">
+               去美团进行预定</a>
+    </div>
+
+
+<!--加入喜欢-->
+
+<div class="mdui-fab-wrapper" mdui-fab="">
+      <button class="mdui-fab mdui-ripple mdui-color-theme-accent">
+        <i class="mdui-icon material-icons">add</i>
+        <i class="mdui-icon mdui-fab-opened material-icons">mode_edit</i>
+      </button>
+      <div class="mdui-fab-dial" style="height: 0px;">
+        <!--<button class="mdui-fab mdui-fab-mini mdui-ripple mdui-color-pink" style="transition-delay: 0ms;">-->
+            <!--<i class="mdui-icon material-icons">backup</i></button>-->
+
+
+        <button id="add_mark" mdui-tooltip="{content: '加入收藏', position: 'left'}" class="mdui-fab mdui-fab-mini
+        mdui-ripple mdui-color-red" style="transition-delay: 15ms;">
+            <i class="mdui-icon material-icons">bookmark</i></button>
+        <!--<button id="del_mark" mdui-tooltip="{content: '从收藏中删除', position: 'left'}" class="mdui-fab mdui-fab-mini mdui-ripple mdui-color-orange" style="transition-delay: 30ms;">-->
+            <!--<i class="mdui-icon material-icons">delete_forever</i></button>-->
+
+          <!--这个是啥-->
+          <!--<div >-->
+              <!--<div class="mdui-dialog-title">Are you sure?</div>-->
+              <!--<div class="mdui-dialog-content">You'll lose all photos and media!</div>-->
+              <!--<div class="mdui-dialog-actions">-->
+                <!--<button class="mdui-btn mdui-ripple">cancel</button>-->
+                <!--<button class="mdui-btn mdui-ripple">erase</button>-->
+              <!--</div>-->
+            <!--</div>-->
+        <!--<button class="mdui-fab mdui-fab-mini mdui-ripple mdui-color-blue" style="transition-delay: 45ms;">-->
+            <!--<i class="mdui-icon material-icons">touch_app</i></button>-->
+      </div>
+    </div>
+
+
+
+
+{% endblock %}
+
+
+
+{% block tail %}
+{% endblock %}
+
+
+
+</div>

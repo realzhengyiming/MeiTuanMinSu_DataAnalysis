@@ -1,0 +1,152 @@
+{% extends 'hotelapp/index_charts.html' %}
+
+{% load city_tags %}
+
+
+{% block title %}
+{{ app_name }}
+{% endblock %}
+
+
+{#{% block drawer_body %}mdui-drawer-body-left{% endblock %}#}
+
+{% block drawer_icon %}
+{% endblock %}
+
+{% block drawer %}
+{% endblock %}
+{#其中一个部分#}
+
+
+
+
+{% block app_name %}
+{{ app_name }}
+{% endblock %}
+
+{% block name %}
+{{ app_name }}
+{% endblock %}
+
+{% block content %}
+<div class="mdui-container">
+<h1 class="doc-title mdui-text-color-theme mdui-text-center">房价预估-回归分析</h1>
+   <div class="label mdui-center mdui-text-center " style="margin-top: 50px;">
+    偏好城市:<select id="house_cityName" class="mdui-select" mdui-select style="margin-left: 10px;">
+
+            {% get_all_cityName %}
+    </select>房屋类型:<select id="house_type" class="mdui-select" mdui-select style="margin-left: 30px;padding-left: 20px;">
+            <option value="整套">整套</option>
+            <option value="合住">合住</option>
+            <option value="单间">单间</option>
+    </select>
+       <input id="house_area" type="number" placeholder="输入房源面积" style="width:115px;margin-left: 30px;" required/>
+       <p>
+       <button class="mdui-btn mdui-color-theme mdui-text-color-white" id="start">开始预测</button>
+       </p>
+
+
+
+
+    </div>
+<div id="predictContent" class="mdui-text-center"></div>
+<div id="predictImg-hide" style="display: none;">
+<div class="mdui-center mdui-spinner mdui-spinner-colorful" style="margin-top: 200px;"></div>
+</div>
+<img id="predictImg" class="mdui-img-fluid mdui-center"/>
+</div>
+    <script type="text/javascript">
+        // var temp_area = null;  // 第一次设置为null
+        function fetchData_predictImg(cName,htype,harea) {  // 点击确认后就调用这个
+            $.ajax({
+                type: "POST",
+                url: "{% url 'hotelapp:predictPrice' %}",
+                dataType: 'json',
+                // async:false,   //使用同步
+                timeout:25000,  //很快的把
+                data:{
+                    cName:cName,
+                    htype:htype,
+                    harea:harea,
+                },
+                success: function (result) {
+                    if (result.code===200){
+                    $("#predictImg").attr('src',result.data.img.toString());
+
+                    $("#predictContent").append("<p></p>");
+                    $("#predictContent").append("<p>模型训练结果如下："+"</p>");
+                    $("#predictContent").append("<p>数据集情况(已有数据越多，且异常值越少，效果越佳)："+result.data.temp_massage.toString()+"</p>");
+                    $("#predictContent").append("<p>测试集得分：R²（R²最好为1，最差为0）="+result.data.R2.toString()+"</p>");
+                    $("#predictContent").append("<p>训练的参数方程为：y="+result.data.y_function.toString()+"</p>");
+                    $("#predictContent").append("<p class='mdui-text-color-red'>算法预估的房源价格为："+harea.toString()+"m²---"
+                        +result.data.predict_result.toString()+" 元</p>");
+
+                        $("#start").attr("disabled",false);  //设置可点击
+
+                                mdui.snackbar({
+                                message: '预测成功.',
+                                position:"bottom",
+                                buttonColor:"#ed5a65",
+                                });
+
+
+                        $("#predictImg-hide").hide();  //隐藏圈圈
+
+                    }else {
+                        $("#start").attr("disabled",false);  //设置可点击
+                        $("#predictImg-hide").hide();  //隐藏圈圈
+
+                        mdui.snackbar({
+                            message: result.msg.info.toString(),
+                            position: "bottom",
+                            buttonColor: "#ed5a65",
+                        });
+                    }
+
+
+                },
+                error : function(XMLHttpRequest,status) { //请求完成后最终执行参数
+                    if (status === 'timeout') {
+                        //超时,status还有success,error等值的情况
+                        $.ajax(this).abort();
+                        console.log("超时,已重试");
+                        $.ajax(this);
+                        return
+                    }
+                }
+            });
+        }
+
+        $("#start").click(function() {
+
+            var house_cityName = $('#house_cityName').val();
+            var house_type = $("#house_type").val();
+            var house_area = $("#house_area").val();
+            if(house_area==="" || house_area===null){
+                mdui.snackbar({
+                    message: '请输入房源面积...',
+                    position:"bottom",
+                    buttonColor:"#ed5a65",
+                });
+            }else{
+                    $(this).attr("disabled",true);  //设置不可点击
+                    $("#predictContent").empty();  //清空内容
+                    $("#predictImg-hide").show();  //显示圈圈
+
+                mdui.snackbar({
+                    message: '正在建立回归模型，请等待...',
+                    position:"bottom",
+                    buttonColor:"#ed5a65",
+                });
+                fetchData_predictImg(house_cityName,house_type,house_area)  // 调用就发送请求。
+
+            }
+
+
+        });
+
+
+    </script>
+
+
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends 'hotelapp/index_charts.html' %}
+{#多app的方案中template需要这样来引入，view中也是需要加上#}
+{% load static %}
+{% block title %}
+{{ app_name }}
+{% endblock %}
+
+{% block app_name %}
+{{ app_name }}
+{% endblock %}
+
+{% block name %}
+ <i class="mdui-icon material-icons">&#xe853;</i>登陆
+{% endblock %}
+
+{% block content %}
+{#    {% for one in articles %}#}
+{#        {{ one }}<br><br>#}
+
+{#    {% endfor %}#}
+<!--<script src="http://api.map.baidu.com/api?v=2.0&ak=L630e8XOMPHpQrzh0RTPdRPWpCWuAKFF"></script>-->
+
+<!--<script>-->
+
+<!--new BMap.LocalCity().get(res=>{-->
+  <!--alert(res.name); //城市名称-->
+<!--})-->
+<!--</script>-->
+<div style="font-weight:900;padding-top: 50px;" class="mdui-center mdui-text-center">
+    <h1>欢迎来到我的小窝</h1>
+    <h2>Welcome to my house</h2>
+    <p>我叫zhengyiming,很高兴你发现了这儿，这儿还在建设中</p>
+    <p>不过作者承诺说他空闲时候会过来这儿添砖加瓦的😊，来来来，先坐坐下面的凳子休息下。</p>
+    <div class="doc-example-demo mdui-center" style="padding-top: 20px;">
+        <button class="mdui-btn mdui-btn-raised mdui-color-blue-200">凳子1</button>
+        <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-green-200" style="padding-left: 20px;padding-right: 20px;">凳子2</button>
+        <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-red-200">凳子3</button>
+      </div>
+</div>
+
+
+<div id="timeline-hide">
+<div class="mdui-center mdui-spinner mdui-spinner-colorful" style="margin-top: 200px;"></div>
+</div>
+
+<!--<div id="timeline" style="width:100%;height:400px;"></div>-->
+    <!--<script type="text/javascript">-->
+           <!--var timeline_chart = echarts.init(document.getElementById('timeline'), 'white', {renderer: 'canvas'});-->
+            <!--$(-->
+                <!--function () {-->
+                    <!--fetchData_timeline(timeline_chart);-->
+                <!--}-->
+            <!--);-->
+
+        <!--function fetchData_timeline() {-->
+            <!--$.ajax({-->
+                <!--type: "GET",-->
+                <!--url: "{% url 'hotelapp:house_content' %}",-->
+                <!--dataType: 'json',-->
+                <!--timeout:5000,  //45秒-->
+                <!--success: function (result) {-->
+                    <!--timeline_chart.setOption(result.data);-->
+                    <!--$('#timeline-hide').css('display','none');  // 组件完全隐藏，不占用显示时占用的位置-->
+                    <!--$('#timeline').css('display','block');   //在设置组件可以看-->
+                <!--}-->
+                <!--,-->
+                <!--error : function(XMLHttpRequest,status) { //请求完成后最终执行参数-->
+                    <!--if (status === 'timeout') {-->
+                        <!--//超时,status还有success,error等值的情况-->
+                        <!--$.ajax(this).abort();-->
+                        <!--console.log("超时,已重试");-->
+                        <!--$.ajax(this);-->
+                        <!--return-->
+                    <!--}-->
+                <!--}-->
+            <!--});-->
+        <!--}-->
+
+    <!--</script>-->
+
+
+<img id="predictImg" class="mdui-img-fluid mdui-center"/>
+    <script type="text/javascript">
+        function fetchData_timeline() {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'hotelapp:predictPrice' %}",
+                dataType: 'json',
+                timeout:15000,  //很快的把
+                data:{
+                    cName:"惠州",
+                    htype:"单间",
+                    harea:40,
+                },
+                success: function (result) {
+                    $("#predictImg").attr('src',result.data.data.img.toString());
+                },
+                error : function(XMLHttpRequest,status) { //请求完成后最终执行参数
+                    if (status === 'timeout') {
+                        //超时,status还有success,error等值的情况
+                        $.ajax(this).abort();
+                        console.log("超时,已重试");
+                        $.ajax(this);
+                        return
+                    }
+                }
+            });
+        }
+        fetchData_timeline();
+    </script>
+{% endblock %}
+{% block tail %}
+{% endblock %}
+</div>

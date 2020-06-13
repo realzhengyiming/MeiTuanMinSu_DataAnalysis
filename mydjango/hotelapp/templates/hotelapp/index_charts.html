@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+
+<html lang="zh-cmn-Hans">
+<head>
+    {% load static %}
+{% load city_tags %}
+　　<link rel="shortcut icon" href="{% static 'icons/favicon.ico' %}" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title> {% block title %}{% endblock %}  </title>
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    {#    加载静态#}
+    <!--<link  rel="stylesheet" href="{% static 'css/mdui.min.css' %}">-->
+    <!--<script  src="{% static 'js/mdui.js' %}"></script>-->
+
+    <!--下面的是echarts的-->
+
+    <link rel="stylesheet" href="//cdnjs.loli.net/ajax/libs/mdui/0.4.3/css/mdui.min.css">
+    <script src="//cdnjs.loli.net/ajax/libs/mdui/0.4.3/js/mdui.min.js"></script>
+<!--{#    <script async src="{% static 'js/echarts.min.js' %}" ></script>#}-->
+<!--{#    <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">#}-->
+    <!--<script async src="{% static 'js/echarts.min.js' %}" ></script>-->
+  <script src="https://cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
+    <script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>
+    <script type="text/javascript" src="https://assets.pyecharts.org/assets/maps/guangdong.js"></script>
+   <script type="text/javascript" src="https://assets.pyecharts.org/assets/maps/china-cities.js"></script>
+    <script type="text/javascript" src="https://assets.pyecharts.org/assets/maps/china.js"></script>
+<script type="text/javascript" src = "https://assets.pyecharts.org/assets/echarts-wordcloud.min.js"></script>
+
+    <!--水球-->
+        <!--<script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>-->
+        <script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts-liquidfill.min.js"></script>
+
+    <!--下面移上来的-->
+    <script src="//www.mdui.org/docs/assets/smooth-scroll-11.1.0/smooth-scroll.min.js"></script>
+<script src="//www.mdui.org/docs/assets/holder-2.9.4/holder.min.js"></script>
+<script src="//www.mdui.org/docs/assets/highlight-9.12.0/highlight.pack.js"></script>
+<!--<script src="//www.mdui.org/source/dist/js/mdui.min.js?v=0.4.3"></script>-->
+<script>var $$ = mdui.JQ;</script>
+<script src="//www.mdui.org/docs/assets/docs/js/docs.js?v=20170815"></script>
+
+
+</head>
+<body class="{% block drawer_body %}{% endblock %} mdui-appbar-with-toolbar
+mdui-theme-primary-indigo mdui-theme-accent-pink">
+<header class="mdui-appbar mdui-appbar-fixed">
+  <div class="mdui-toolbar mdui-color-theme">
+    {% block drawer_icon %}
+    {% endblock %}
+    <a href="/hotelapp" class="mdui-typo-headline mdui-hidden-xs"
+       mdui-tooltip="{content: '回首页', position: 'bottom'}">
+        <i class="mdui-icon material-icons">&#xe88a;</i></a>
+
+    <a  class="mdui-typo-title">{% block name %}{% endblock %}</a>
+    <div class="mdui-toolbar-spacer"></div>
+
+      <!--<button class="mdui-textfield-icon mdui-btn mdui-btn-icon">-->
+      <!--</button>-->
+
+ <a target="_blank" href="{% url 'hotelapp:search' %}" class="mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white"
+     mdui-tooltip="{content: '查询房源'}">
+<i class="mdui-icon material-icons">search</i>
+  </a>
+
+
+
+
+    <!--<span class="mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white" mdui-dialog="{target: '#dialog-docs-theme'}"-->
+          <!--mdui-tooltip="{content: '设置主题'}">-->
+      <!--<i class="mdui-icon material-icons">color_lens</i></span>-->
+
+      {% if user.is_authenticated %}<a class="mdui-btn  mdui-ripple mdui-ripple-white"
+                                       mdui-tooltip="{content: '我的收藏夹'}"
+                                       mdui-dialog="{target: '#example-4'}">{{ request.user|lower }}</a>
+          <a href="{% url 'hotelapp:password_change' %}" class="mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white"
+             mdui-tooltip="{content: '修改密码'}">
+         <i class="mdui-icon material-icons">&#xe3c9;</i>
+          </a>
+          <a href="{% url 'hotelapp:user_logout' %}" class="mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white"
+             mdui-tooltip="{content: '{% if user.is_authenticated %}登出{% else %}未登录{% endif %}'}">
+     <i class="mdui-icon material-icons">&#xe879;</i>
+      </a>{% else %}<a  mdui-tooltip="{content: '点击登陆<br>   😁'}"  href="{% url 'hotelapp:user_login' %}">
+      <front class="mdui-text-color-yellow">请先登陆</front></a>{% endif %}
+
+
+
+{#      <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 36 36" enable-background="new 0 0 36 36" xml:space="preserve" class="mdui-icon" style="width: 24px;height:24px;">#}
+{#        <path fill-rule="evenodd" clip-rule="evenodd" fill="#ffffff" d="M18,1.4C9,1.4,1.7,8.7,1.7,17.7c0,7.2,4.7,13.3,11.1,15.5#}
+{#	c0.8,0.1,1.1-0.4,1.1-0.8c0-0.4,0-1.4,0-2.8c-4.5,1-5.5-2.2-5.5-2.2c-0.7-1.9-1.8-2.4-1.8-2.4c-1.5-1,0.1-1,0.1-1#}
+{#	c1.6,0.1,2.5,1.7,2.5,1.7c1.5,2.5,3.8,1.8,4.7,1.4c0.1-1.1,0.6-1.8,1-2.2c-3.6-0.4-7.4-1.8-7.4-8.1c0-1.8,0.6-3.2,1.7-4.4#}
+{#	c-0.2-0.4-0.7-2.1,0.2-4.3c0,0,1.4-0.4,4.5,1.7c1.3-0.4,2.7-0.5,4.1-0.5c1.4,0,2.8,0.2,4.1,0.5c3.1-2.1,4.5-1.7,4.5-1.7#}
+{#	c0.9,2.2,0.3,3.9,0.2,4.3c1,1.1,1.7,2.6,1.7,4.4c0,6.3-3.8,7.6-7.4,8c0.6,0.5,1.1,1.5,1.1,3c0,2.2,0,3.9,0,4.5#}
+{#	c0,0.4,0.3,0.9,1.1,0.8c6.5-2.2,11.1-8.3,11.1-15.5C34.3,8.7,27,1.4,18,1.4z"></path>#}
+{#      </svg>#}
+{#    </a>#}
+  </div>
+
+
+</header>
+{#对话框#}
+<div class="mdui-dialog" id="loginTool">
+  <div class="mdui-dialog-content">你想要登出吗？</div>
+  <div class="mdui-dialog-actions">
+    <a href="{% url 'hotelapp:user_logout' %}" class="mdui-btn mdui-ripple" mdui-dialog-close>是</a>
+    <button class="mdui-btn mdui-ripple" mdui-dialog-confirm>否</button>
+  </div>
+</div>
+
+
+<!--这个是弹出对话框的收藏夹-->
+<div class="mdui-dialog" id="example-4">
+    <div class="mdui-dialog-content" >
+      <div class="mdui-dialog-title mdui-center">我的收藏夹 </div>
+        <!-- 选择城市  -->
+      <p>收藏夹中的房源会进行每日监控</p>
+        <!--偏好城市:<select class="mdui-select" mdui-select style="margin-left: 10px;">-->
+            <!--{% get_all_city  %}  这个好像没啥用-->
+          <!--&lt;!&ndash;<option value="2">State 2</option>&ndash;&gt;-->
+        <!--</select>-->
+      <!--<button id="check_position" class="mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white">-->
+        <!--<i class="mdui-icon material-icons">check</i></button>-->
+            <div class="mdui-table-fluid">
+              <table class="mdui-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>房源城市</th>
+                    <th>房源价格</th>
+                    <th>房源名</th>
+                      <th>删除</th>
+                  </tr>
+                </thead>
+                <tbody id="add_apend">
+                {% if request.user.favourite.fav_houses.all %}
+                 {% for i in request.user.favourite.fav_houses.all %}
+                  <tr id='tr-{{i.house_id}}'>
+                    <td>{{i.house_id}}</td>
+                    <td>{{i.house_cityName}}</td>
+                    <td>{{i.house_discountprice}}</td>
+                      <td><a target="_blank" href="{% url 'hotelapp:detail' %}?house_id={{i.house_id}}">{{i.house_title}}</a></td>
+                      <td>
+                          <button id="{{i.house_id}}"    name="del_button"
+                                  class="mdui-btn mdui-btn-icon mdui-color-theme-accent mdui-ripple mdui-ripple-white">
+                          <i class="mdui-icon material-icons">delete_forever</i></button></td>
+                  </tr>
+                {% endfor %}
+                {% else %}
+                <tr id="delete">
+                    <td></td>
+                    <td></td>
+                    <td><p class="mdui-text-center" style="padding-top: 20px;"><h4>您的收藏夹为空，快去收藏吧☺</h4></p>
+                        </td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                {% endif %}
+                </tbody>
+                      </table>
+        </div>
+
+    <div class="mdui-dialog-actions">
+      <button class="mdui-btn mdui-ripple" mdui-dialog-cancel>关闭</button>
+      <button class="mdui-btn mdui-ripple"></button>
+    </div>
+  </div>
+
+
+
+
+</div>
+
+<!--<script>-->
+  <!--var tab = new mdui.Tab('#example4-tab');-->
+  <!--document.getElementById('example-4').addEventListener('open.mdui.dialog', function () {-->
+    <!--tab.handleUpdate();-->
+  <!--});-->
+<!--</script>-->
+
+{#这儿是侧边栏的东西#}
+{% block drawer %}
+{% endblock %}
+{#其中一个部分#}
+
+
+
+
+{% block content %}
+{% endblock %}
+
+{% block tail %}
+
+{% endblock %}
+
+
+{#下面是换颜色的#}
+<div class="mdui-dialog" id="dialog-docs-theme">
+  <div class="mdui-dialog-title">设置文档主题</div>
+  <div class="mdui-dialog-content">
+
+    <p class="mdui-typo-title">主题色</p>
+    <div class="mdui-row-xs-1 mdui-row-sm-2 mdui-row-md-3">
+      <div class="mdui-col">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-layout" value="" checked/>
+          <i class="mdui-radio-icon"></i>
+          Light
+        </label>
+      </div>
+      <div class="mdui-col">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-layout" value="dark" />
+          <i class="mdui-radio-icon"></i>
+          Dark
+        </label>
+      </div>
+    </div>
+
+    <p class="mdui-typo-title mdui-text-color-theme">主色</p>
+    <form class="mdui-row-xs-1 mdui-row-sm-2 mdui-row-md-3">
+      <div class="mdui-col mdui-text-color-amber">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="amber" />
+          <i class="mdui-radio-icon"></i>
+          Amber
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-blue">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="blue" />
+          <i class="mdui-radio-icon"></i>
+          Blue
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-blue-grey">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="blue-grey" />
+          <i class="mdui-radio-icon"></i>
+          Blue Grey
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-brown">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="brown" />
+          <i class="mdui-radio-icon"></i>
+          Brown
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-cyan">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="cyan" />
+          <i class="mdui-radio-icon"></i>
+          Cyan
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-deep-orange">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="deep-orange" />
+          <i class="mdui-radio-icon"></i>
+          Deep Orange
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-deep-purple">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="deep-purple" />
+          <i class="mdui-radio-icon"></i>
+          Deep Purple
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-green">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="green" />
+          <i class="mdui-radio-icon"></i>
+          Green
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-grey">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="grey" />
+          <i class="mdui-radio-icon"></i>
+          Grey
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-indigo">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="indigo" checked/>
+          <i class="mdui-radio-icon"></i>
+          Indigo
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-light-blue">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="light-blue" />
+          <i class="mdui-radio-icon"></i>
+          Light Blue
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-light-green">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="light-green" />
+          <i class="mdui-radio-icon"></i>
+          Light Green
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-lime">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="lime" />
+          <i class="mdui-radio-icon"></i>
+          Lime
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-orange">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="orange" />
+          <i class="mdui-radio-icon"></i>
+          Orange
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-pink">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="pink" />
+          <i class="mdui-radio-icon"></i>
+          Pink
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-purple">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="purple" />
+          <i class="mdui-radio-icon"></i>
+          Purple
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-red">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="red" />
+          <i class="mdui-radio-icon"></i>
+          Red
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-teal">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="teal" />
+          <i class="mdui-radio-icon"></i>
+          Teal
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-yellow">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-primary" value="yellow" />
+          <i class="mdui-radio-icon"></i>
+          Yellow
+        </label>
+      </div>
+    </form>
+
+    <p class="mdui-typo-title mdui-text-color-theme-accent">强调色</p>
+    <form class="mdui-row-xs-1 mdui-row-sm-2 mdui-row-md-3">
+      <div class="mdui-col mdui-text-color-amber">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="amber" />
+          <i class="mdui-radio-icon"></i>
+          Amber
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-blue">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="blue" />
+          <i class="mdui-radio-icon"></i>
+          Blue
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-cyan">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="cyan" />
+          <i class="mdui-radio-icon"></i>
+          Cyan
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-deep-orange">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="deep-orange" />
+          <i class="mdui-radio-icon"></i>
+          Deep Orange
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-deep-purple">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="deep-purple" />
+          <i class="mdui-radio-icon"></i>
+          Deep Purple
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-green">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="green" />
+          <i class="mdui-radio-icon"></i>
+          Green
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-indigo">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="indigo" />
+          <i class="mdui-radio-icon"></i>
+          Indigo
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-light-blue">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="light-blue" />
+          <i class="mdui-radio-icon"></i>
+          Light Blue
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-light-green">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="light-green" />
+          <i class="mdui-radio-icon"></i>
+          Light Green
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-lime">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="lime" />
+          <i class="mdui-radio-icon"></i>
+          Lime
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-orange">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="orange" />
+          <i class="mdui-radio-icon"></i>
+          Orange
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-pink">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="pink" checked/>
+          <i class="mdui-radio-icon"></i>
+          Pink
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-purple">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="purple" />
+          <i class="mdui-radio-icon"></i>
+          Purple
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-red">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="red" />
+          <i class="mdui-radio-icon"></i>
+          Red
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-teal">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="teal" />
+          <i class="mdui-radio-icon"></i>
+          Teal
+        </label>
+      </div>
+      <div class="mdui-col mdui-text-color-yellow">
+        <label class="mdui-radio mdui-m-b-1">
+          <input type="radio" name="doc-theme-accent" value="yellow" />
+          <i class="mdui-radio-icon"></i>
+          Yellow
+        </label>
+      </div>
+    </form>
+
+  </div>
+  <div class="mdui-divider"></div>
+  <div class="mdui-dialog-actions">
+    <button class="mdui-btn mdui-ripple mdui-float-left" mdui-dialog-cancel>恢复默认主题</button>
+    <button class="mdui-btn mdui-ripple" mdui-dialog-confirm>ok</button>
+  </div>
+</div>
+
+<!--后面这个script为收藏操作的删除的前端-->
+<script >
+     mdui.mutation();
+// $(document).ready(function(){
+  $("#add_mark").click(function() {
+      // 按钮改成旋转的东西等待
+      var del_house_id = "{{ house.0.house_id }}";
+      // alert(del_house_id);
+      if (del_house_id !== "") {
+          $.ajax({
+              type: "GET",
+              url: "{% url 'hotelapp:Favourite' %}?username={{request.user.username}}&method=add&del_house_id=" +
+                  del_house_id.toString(),
+              dataType: 'json',
+              // async: false,
+              timeout:5000,  //超时自动重试
+
+              success: function (result) {
+                  // var strJSON = result;//得到的JSON
+                  var obj = eval(result);
+                  // alert(obj.data.tag.toString());
+                  if (obj.data.tag.toString()!=""){
+                    $("#delete").remove();  //直接删掉
+                    $("#add_apend").append(obj.data.tag.toString());
+
+                  }
+                  mdui.snackbar({
+                      message: '' + obj.data.result.toString(),
+                      position: 'bottom'
+                  });
+              },
+              error : function(XMLHttpRequest,status) { //请求完成后最终执行参数
+                    if (status === 'timeout') {
+                        //超时,status还有success,error等值的情况
+                        $.ajax(this).abort();
+                        console.log("超时,已重试");
+                        $.ajax(this);
+                        return
+                    }
+                }
+
+          });
+
+      }
+  });
+
+
+   $("#check_position").click(function(){
+       mdui.snackbar({
+             message: '城市修改成功',
+             position: "bottom"
+         });
+  });
+
+     function delete_btn(house_id){  //动态添加的再动态绑定这个就可以
+            // alert(house_id);
+             $(this).attr("disabled",true);  //设置不可点击
+             var del_house_id=house_id;  //找到button
+            //发送请求
+            $.ajax({
+                type: "GET",
+                url: "{% url 'hotelapp:Favourite' %}?username={{request.user.username}}&method=del&del_house_id="+
+                    del_house_id.toString(),
+                dataType: 'json',
+                // async: false,
+                timeout:5000,  //超时重试
+
+                success: function (result) {
+                    // var strJSON = result;//得到的JSON
+                    var obj = eval(result);
+
+                    $("[id=tr-"+del_house_id.toString()+"]").remove();
+
+                   mdui.snackbar({
+                         message: ''+obj.data.result.toString(),
+                         position: 'bottom'
+                     });  // todo 这个空的时候删除不掉，刚添加的也不能删除，为空的那个也删除不了
+                },
+                error : function(XMLHttpRequest,status) { //请求完成后最终执行参数
+                    if (status === 'timeout') {
+                        //超时,status还有success,error等值的情况
+                        $.ajax(this).abort();
+                        console.log("超时,已重试");
+                        $.ajax(this);
+                        return
+                    }
+                }
+
+
+
+            });
+
+        }
+
+
+        $("[name=del_button]").click(function(){
+             $(this).attr("disabled",true);  //设置不可点击
+             var del_house_id=$(this).attr("id");  //找到button
+            //发送请求
+            $.ajax({
+                type: "GET",
+                url: "{% url 'hotelapp:Favourite' %}?username={{request.user.username}}&method=del&del_house_id="+
+                    del_house_id.toString(),
+                dataType: 'json',
+                // async: false,
+                timeout:5000,
+
+                success: function (result) {
+                    // var strJSON = result;//得到的JSON
+                    var obj = eval(result);
+
+                    $("[id=tr-"+del_house_id.toString()+"]").remove();
+
+                   mdui.snackbar({
+                         message: ''+obj.data.result.toString(),
+                         position: 'bottom'
+                     });  // todo 这个空的时候删除不掉，刚添加的也不能删除，为空的那个也删除不了
+                },error : function(XMLHttpRequest,status) { //请求完成后最终执行参数
+                    if (status === 'timeout') {
+                        //超时,status还有success,error等值的情况
+                        $.ajax(this).abort();
+                        console.log("超时,已重试");
+                        $.ajax(this);
+                        return
+                    }
+                }
+            });
+
+  });
+
+
+
+   
+// });
+</script>
+
+
+<script type="text/javascript" >
+var varstring = "{{error}}";
+if (varstring !=null) {
+    mdui.mutation();
+    mdui.snackbar({
+        message: varstring,
+        position: "bottom",
+    });
+}
+</script>
+
+<script>
+var varstring = "{{ success_info }}";
+if (varstring !=null){
+    if (varstring=="register_success"){
+        mdui.mutation();
+        mdui.snackbar({
+            message: '注册成功,请继续登陆😘',
+            position:"bottom",
+            buttonColor:"#ed5a65",
+        });
+    }else if(varstring=="password_change_success") {
+        mdui.mutation();
+        mdui.snackbar({
+            message: '密码修改成功😘',
+            position: "bottom",
+            buttonColor:"red",
+    });
+        }
+    }
+</script>
+
+
+</body>
+

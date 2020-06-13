@@ -1,0 +1,191 @@
+{% extends 'hotelapp/index_charts.html' %}
+{#多app的方案中template需要这样来引入，view中也是需要加上#}
+{% block title %}
+{{ app_name }}
+{% endblock %}
+
+
+
+
+{% block drawer_body %}mdui-drawer-body-left{% endblock %}
+
+{% block drawer_icon %}
+    <span class=" mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white" mdui-drawer="{target: '#main-drawer', swipe: true}"><i class="mdui-icon material-icons">menu</i></span>
+{% endblock %}
+
+{% block drawer %}
+<div class="mdui-drawer " id="main-drawer">
+  <div class="mdui-list" mdui-collapse="{accordion: true}" style="margin-bottom: 76px;">
+    <div class="mdui-collapse-item mdui-collapse-item-open">
+      <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">near_me</i>
+        <div class="mdui-list-item-content">开始使用</div>
+        <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+      </div>
+      <div class="mdui-collapse-item-body mdui-list mdui-collapse-item-open ">
+        <!--<a  class="mdui-list-item mdui-ripple ">数据概略</a>-->
+      <a href="{%url 'hotelapp:index' %}" class="mdui-list-item mdui-ripple ">数据概略</a>
+
+        <a href="{% url 'hotelapp:detaillist' %}" class="mdui-list-item mdui-ripple mdui-list-item-active">详细数据</a>
+         </div>
+  </div>
+
+         <div class="mdui-collapse-item ">
+      <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
+        <!--<i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">near_me</i>-->
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">insert_chart</i>
+        <div class="mdui-list-item-content">分析</div>
+          <!--<i class="mdui-collapse-item-arrow mdui-icon material-icons">insert_chart</i>-->
+        <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+      </div>
+      <div class="mdui-collapse-item-body mdui-list mdui-collapse-item-open ">
+           <a href="{% url 'hotelapp:host' %}" class="mdui-list-item mdui-ripple ">房东数据分析</a>
+          <!--<a href="{% url 'hotelapp:consumer' %}" class="mdui-list-item mdui-ripple ">房客专区</a>-->
+   <a ><div class="mdui-divider"></div></a>
+         <a href="{% url 'hotelapp:price' %}" class="mdui-list-item mdui-ripple  ">房源价格分析</a>
+        <a href="{% url 'hotelapp:time' %}" class="mdui-list-item mdui-ripple ">发布时间分析</a>
+        <a href="{% url 'hotelapp:area' %}" class="mdui-list-item mdui-ripple ">房源面积分析</a>
+        <a href="{% url 'hotelapp:facilityPage' %}" class="mdui-list-item mdui-ripple ">房源设施分析</a>
+             <a ><div class="mdui-divider"></div></a>
+        <a href="{% url 'hotelapp:assess' %}" class="mdui-list-item mdui-ripple ">房源价格评估</a>
+
+    </div>
+  </div>
+
+  </div>
+</div>
+<a id="anchor-top"></a>
+{% endblock %}
+{#其中一个部分#}
+
+
+
+
+{% block app_name %}
+{{ app_name }}
+{% endblock %}
+
+{% block name %}
+{{ app_name }}
+{% endblock %}
+
+{% block content %}
+<div class="mdui-container doc-container">
+{#    这儿才是内容的区域呢#}
+  <h1 class="doc-title mdui-text-color-theme">详细数据</h1>
+  <div class="doc-intro mdui-typo">
+
+
+<div class="mdui-container">
+
+
+    <div id="timeline-hide">
+    <div class="mdui-center mdui-spinner mdui-spinner-colorful" style="margin-top: 200px;"></div>
+</div>
+    <div class="mdui-center" id="timeline" style="width:800px; height:300px;display: none;margin-top: 20px;"></div>
+    <script>
+        var timeline_chart = echarts.init(document.getElementById('timeline'), 'white', {renderer: 'canvas'});
+        $(
+            function () {
+                fetchData_timeline(timeline_chart);
+                //{#setInterval(fetchData_timeline, 10000);#}
+            }
+        );
+
+        function fetchData_timeline() {
+            $.ajax({
+                type: "GET",
+                url: "/hotelapp/timeline/",
+                dataType: 'json',
+                async: true,
+                timeout:5000,
+                success: function (result) {
+                    timeline_chart.setOption(result.data);
+                    $('#timeline-hide').css('display','none');  // 组件完全隐藏，不占用显示时占用的位置
+		            $('#timeline').css('display','block');   //在设置组件可以看
+                },
+                error : function(XMLHttpRequest,status) { //请求完成后最终执行参数
+                    if (status === 'timeout') {
+                        //超时,status还有success,error等值的情况
+                        $.ajax(this).abort();
+                        console.log("超时,已重试");
+                        $.ajax(this);
+                        return
+                    }
+                }
+            });
+        }
+    </script>
+
+    <div class="mdui-row">
+    <br>
+    <br>
+   <div class="mdui-table-fluid">
+  <table class="mdui-table">
+    <thead>
+      <tr>
+        <th>#</th>
+          <th>价格(￥)</th>
+        <th>房源名</th>
+        <th>房源抓取日期</th>
+        <th>城市名</th>
+          <th>预览</th>
+      </tr>
+    </thead>
+    <tbody>
+
+    {% for object in articles %}
+     <tr>
+         <td>{{ object.house_id }}</td>
+         <td>{{ object.house_oriprice }}</td>
+        <td ><a href="/hotelapp/detail/?house_id={{ object.house_id }}" target="_blank">{{ object.house_title }}</a></td>
+{#        <td>{{ object.3 }}</td>#}
+        <td>{{ object.house_date }}</td>
+        <td>{{ object.house_cityName }}</td>
+        <td><img class="mdui-img-fluid" src="{{ object.house_img}}" /></td>
+     </tr>
+    {% endfor %}
+
+    </tbody>
+  </table>
+</div>
+
+
+
+
+
+
+{% endblock %}
+
+
+{% block tail %}
+ <div class="mdui-row-xs-3 mdui-center" style="width: 300px;margin-top: 10px;margin-bottom: 15px;">
+  <div class="mdui-col">
+      {% if page.has_previous %}
+    <button class="mdui-btn mdui-btn-block mdui-ripple" mdui-tooltip="{content: '上一页',position:'top'}" onclick="window.location.href='?page={{page.previous_page_number}}'">
+        <i class="mdui-icon material-icons ">arrow_back</i></button>
+  {% else %}
+     <button class="mdui-btn mdui-btn-block mdui-ripple" mdui-tooltip="{content: '上一页',position:'top'}" disabled>
+         <i class="mdui-icon material-icons ">arrow_back</i></button>
+      {% endif %}
+  </div>
+    <div class="mdui-col">
+    <button class="mdui-btn mdui-btn-block mdui-ripple" mdui-tooltip="{content: '当前第{{ page.number }}页'}">
+        {{ page.number }}/{{ page.paginator.num_pages }}</button>
+  </div>
+  <div class="mdui-col">
+      {% if page.has_next %}
+    <button class="mdui-btn mdui-btn-block mdui-ripple" mdui-tooltip="{content: '下一页',position:'top'}" onclick="window.location.href='?page={{page.next_page_number}}'">
+        <i class="mdui-icon material-icons ">arrow_forward</i></button>
+    {% else %}
+     <button class="mdui-btn mdui-btn-block mdui-ripple" mdui-tooltip="{content: '下一页',position:'top'}" disabled><i class="mdui-icon material-icons ">arrow_forward</i></button>
+      {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+  </div>
+
+</div>
+
+  </div></div>

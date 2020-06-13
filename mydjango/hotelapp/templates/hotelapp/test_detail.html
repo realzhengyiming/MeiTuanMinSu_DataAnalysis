@@ -1,0 +1,179 @@
+{% extends 'hotelapp/index_charts.html' %}
+{#多app的方案中template需要这样来引入，view中也是需要加上#}
+{% load static %}
+{% block title %}
+{{ app_name }}
+{% endblock %}
+
+{% block app_name %}
+{{ app_name }}
+{% endblock %}
+
+{% block name %}
+ <i class="mdui-icon material-icons">&#xe853;</i>登陆
+{% endblock %}
+
+{% block content %}
+{#    {% for one in articles %}#}
+{#        {{ one }}<br><br>#}
+
+{#    {% endfor %}#}
+    <img src="">
+    <div class="mdui-container">
+{#    <h1>详情</h1>#}
+        <h1 class="doc-title mdui-text-color-theme">房源详情</h1>
+<a href="{{ house.0.house_url }}" target="_blank">去美团进行预定</a>
+    <img class="mdui-img-fluid mdui-center mdui-img-rounded " src="{{ house.0.house_img }}" style="width: 800px;height: auto;"/>
+    <div class="label">
+    <h2>房源标签</h2>
+        {% for label in  labels %}
+        {% if label.label_type == 1 %}
+            <div class="mdui-chip" mdui-tooltip="{content: '{{ label.label_desc }}', position: 'bottom'}">
+            <span class="mdui-chip-title mdui-text-color-red" >{{ label.label_name }}</span>
+        </div>
+        {% else %}
+            <div class="mdui-chip" mdui-tooltip="{content: '{{ label.label_desc }}', position: 'bottom'}">
+            <span class=" mdui-chip-title mdui-text-color-green" >{{ label.label_name }}</span>
+        </div>
+        {% endif %}
+    {% endfor %}
+    </div>
+
+
+    <div style="margin-top: 50px;">
+
+    <h2>配套设施</h2>
+     {% for label in  facility %}
+        <div class="mdui-chip">
+            <span class="mdui-chip-title mdui-text-color-blue" >{{ label.facility_name }}</span>
+        </div>
+     {% endfor %}
+
+    </div>
+
+
+
+
+{#    {{ house }}#}
+{#{% for object in house %}#}
+{#    {{ object.house_date}}#}
+{#    {{ object.house_oriprice }}#}
+{#    {{ object.house_discountprice }}#}
+{#    {{ object.house_title }}#}
+{#    <br>#}
+{#    {% endfor %}#}
+{#<br>#}
+
+    <div class="mdui-center" id="timeline" style="width:800px; height:400px;margin-top: 50px"></div>
+    <script>
+        var timeline_chart = echarts.init(document.getElementById('timeline'), 'white', {renderer: 'canvas'});
+        $(
+            function () {
+                fetchData_timeline(timeline_chart);
+                {#setInterval(fetchData_timeline, 10000);#}
+            }
+        );
+
+        function fetchData_timeline() {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'hotelapp:houseTimeLineView' %}?house_id={{ house_id }}",
+                dataType: 'json',
+                timeout:5000,
+                success: function (result) {
+                    timeline_chart.setOption(result.data);
+                },
+                error : function(XMLHttpRequest,status) { //请求完成后最终执行参数
+                    if (status === 'timeout') {
+                        //超时,status还有success,error等值的情况
+                        $.ajax(this).abort();
+                        console.log("超时,已重试");
+                        $.ajax(this);
+                        return
+                    }
+                }
+            });
+        }
+    </script>
+
+
+
+        <div class="mdui-center" id="drawmap" style="width:800px; height:400px;margin-top: 50px;"></div>
+    <script>
+        var drawmap_chart = echarts.init(document.getElementById('drawmap'), 'white', {renderer: 'canvas'});
+        $(
+            function () {
+                fetchData_drawmap(drawmap_chart);
+               // {#setInterval(fetchData_drawmap, 10000);#}
+            }
+        );
+        function fetchData_drawmap() {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'hotelapp:houseScoreLine' %}?house_id={{ house_id }}",
+                dataType: 'json',
+                success: function (result) {
+                    drawmap_chart.setOption(result.data);
+                }
+            });
+        }
+    </script>
+
+
+
+
+
+    </div>
+
+
+
+{#<img src="{% static 'media/default.jpg' %}"/>#}
+
+
+<script type="text/javascript">
+var varstring = "{{ success_info }}";
+if (varstring !=null){
+    if (varstring=="register_success"){
+        mdui.mutation();
+        mdui.snackbar({
+            message: '注册成功😘',
+            position:"bottom",
+            buttonColor:"red",
+        });
+    }else if(varstring=="password_change_success") {
+        mdui.mutation();
+        mdui.snackbar({
+            message: '密码修改成功😘',
+            position: "bottom",
+            buttonColor:"red",
+    });
+        }
+    }
+</script>
+
+
+    <div background="{% static 'img/back.jpg' %}" style=" background-repeat:no-repeat ;background-size:100% 100%;
+background-attachment: fixed;" xmlns:mdui.snackbar>
+
+<div class="mdui-card mdui-center"  mdui-shadow-10 style="width: 350px;margin-top:3.5cm;padding-bottom:10px;padding-left: 10px;padding-right: 10px;"  >
+    <h1 class="mdui-center mdui-text-center">登陆到数据分析系统</h1>
+    {% if error %} <p class="mdui-text-center mdui-text-color-pink" >{{ error }}</p> {% endif %}
+    <form class="form-horizontal" action="{% url 'hotelapp:user_login' %}" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input onclick="mdui.snackbar({message: '跳转中...'});" type="submit" class="mdui-center mdui-btn mdui-btn-raised mdui-color-white" value="登陆">
+        {% if form.errors %}
+           <front class="mdui-text-color-red"> {{  form.errors }}    </front>
+        {% endif %}
+    </form>
+</div>
+    <span class="mdui-center mdui-text-center">
+        <button href="{ %url 'hotelapp:password_forget' % }" class="mdui-btn mdui-text-center mdui-center mdui-text-coler-grey-200" style="margin-top: 20px;">忘记密码？</button>
+        <a  href="{% url 'hotelapp:user_register' %}" ><button class="mdui-btn mdui-text-center mdui-center mdui-text-coler-grey-100" style="margin-top: 20px;">还未注册？</button>
+        </a>
+    </span>
+
+{% endblock %}
+{% block tail %}
+{% endblock %}
+</div>

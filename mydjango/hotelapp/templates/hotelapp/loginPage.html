@@ -1,0 +1,41 @@
+{% extends 'hotelapp/index_charts.html' %}
+{#多app的方案中template需要这样来引入，view中也是需要加上#}
+{% load static %}
+{% block title %}
+{{ app_name }}
+{% endblock %}
+
+{% block app_name %}
+{{ app_name }}
+{% endblock %}
+
+{% block name %}
+ <i class="mdui-icon material-icons">&#xe853;</i>登陆
+{% endblock %}
+
+{% block content %}
+    <div background="{% static 'img/back.jpg' %}" style=" background-repeat:no-repeat ;background-size:100% 100%;
+background-attachment: fixed;" xmlns:mdui.snackbar>
+<div class="mdui-card mdui-center"  mdui-shadow-10 style="width: 350px;margin-top:3.5cm;padding-bottom:10px;padding-left: 10px;padding-right: 10px;"  >
+    <h1 class="mdui-center mdui-text-center">登陆到数据分析系统</h1>
+{#    {% if error %} <p class="mdui-text-center mdui-text-color-pink" >{{ error }}</p> {% endif %}#}
+    <form class="form-horizontal" action="{% url 'hotelapp:user_login' %}" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input onclick="mdui.snackbar({message: '跳转中...'});" type="submit" class="mdui-center mdui-btn mdui-btn-raised mdui-color-white" value="登陆">
+
+    </form>
+</div>
+    <span class="mdui-center mdui-text-center">
+        <button href="{ %url 'hotelapp:password_forget' % }" class="mdui-btn mdui-text-center mdui-center mdui-text-coler-grey-200" style="margin-top: 20px;">忘记密码？</button>
+        <a  href="{% url 'hotelapp:user_register' %}" ><button class="mdui-btn mdui-text-center mdui-center mdui-text-coler-grey-100" style="margin-top: 20px;">还未注册？</button>
+        </a>
+    </span>
+
+
+{% endblock %}
+{% block tail %}
+{% endblock %}
+</div>
+
+

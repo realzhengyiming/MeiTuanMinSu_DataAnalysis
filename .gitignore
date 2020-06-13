@@ -1,0 +1,12 @@
+# pycharm配置不用上传
+/.idea
+*.log
+#
+*.pyc
+/myscrapy/*.log
+/__pycache__
+/__pycache__/*
+# 迁移的这个也是可以不上传的，到时候直接生成即可
+/migrations 
+
+*.log

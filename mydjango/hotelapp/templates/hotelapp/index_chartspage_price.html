@@ -1,0 +1,212 @@
+{% extends 'hotelapp/index_charts.html' %}
+{#多app的方案中template需要这样来引入，view中也是需要加上#}
+{% block title %}
+{{ app_name }}
+{% endblock %}
+
+{% block drawer_body %}mdui-drawer-body-left{% endblock %}
+
+{% block drawer_icon %}
+    <span class=" mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white" mdui-drawer="{target: '#main-drawer', swipe: true}"><i class="mdui-icon material-icons">menu</i></span>
+{% endblock %}
+
+{% block drawer %}
+<div class="mdui-drawer " id="main-drawer">
+  <div class="mdui-list" mdui-collapse="{accordion: true}" style="margin-bottom: 76px;">
+    <div class="mdui-collapse-item ">
+      <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">near_me</i>
+        <div class="mdui-list-item-content">开始使用</div>
+        <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+      </div>
+      <div class="mdui-collapse-item-body mdui-list  ">
+        <!--<a  class="mdui-list-item mdui-ripple mdui-list-item-active">数据概略</a>-->
+    <a href="{%url 'hotelapp:index' %}" class="mdui-list-item mdui-ripple ">数据概略</a>
+
+        <a href="{% url 'hotelapp:detaillist' %}" class="mdui-list-item mdui-ripple ">详细数据</a>
+         </div>
+  </div>
+
+         <div class="mdui-collapse-item mdui-collapse-item-open">
+      <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
+        <!--<i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">near_me</i>-->
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">insert_chart</i>
+        <div class="mdui-list-item-content">分析</div>
+          <!--<i class="mdui-collapse-item-arrow mdui-icon material-icons">insert_chart</i>-->
+        <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+      </div>
+      <div class="mdui-collapse-item-body mdui-list mdui-collapse-item-open ">
+           <a href="{% url 'hotelapp:host' %}" class="mdui-list-item mdui-ripple ">房东数据分析</a>
+          <!--<a href="{% url 'hotelapp:consumer' %}" class="mdui-list-item mdui-ripple ">房客专区</a>-->
+   <a ><div class="mdui-divider"></div></a>
+        <a href="{% url 'hotelapp:price' %}" class="mdui-list-item mdui-ripple mdui-list-item-active ">房源价格分析</a>
+        <a href="{% url 'hotelapp:time' %}" class="mdui-list-item mdui-ripple ">发布时间分析</a>
+        <a href="{% url 'hotelapp:area' %}" class="mdui-list-item mdui-ripple ">房源面积分析</a>
+        <a href="{% url 'hotelapp:facilityPage' %}" class="mdui-list-item mdui-ripple ">房源设施分析</a>
+             <a ><div class="mdui-divider"></div></a>
+        <a href="{% url 'hotelapp:assess' %}" class="mdui-list-item mdui-ripple ">房源价格评估</a>
+    </div>
+  </div>
+
+  </div>
+</div>
+<a id="anchor-top"></a>
+{% endblock %}
+{#其中一个部分#}
+
+
+
+
+{% block app_name %}
+{{ app_name }}
+{% endblock %}
+
+{% block name %}
+{{ app_name }}
+{% endblock %}
+
+{% block content %}
+<div class="mdui-container doc-container">
+{#    这儿才是内容的区域呢#}
+  <h1 class="doc-title mdui-text-color-theme">{{ app_name }}</h1>
+  <div class="doc-intro mdui-typo">
+
+{#<button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent mdui-color-red-400">Button</button>#}
+{#{%  if latest_question_list  %}#}
+<div class="mdui-container">
+
+<div id="bar-hide">
+    <div class="mdui-center mdui-spinner mdui-spinner-colorful" style="margin-top: 200px;"></div>
+</div>
+ <div class="mdui-center" id="bar" style="width:800px; height:400px;margin-top:20px;display:none;" ></div>
+
+
+<div id="line2-hide">
+    <div class="mdui-center mdui-spinner mdui-spinner-colorful" style="margin-top: 200px;"></div>
+</div>
+ <div class="mdui-center" id="line2" style="width:800px; height:400px;margin-top:20px;display:none;" ></div>
+
+        <br>
+        <br>
+
+
+<div id="line3-hide">
+    <div class="mdui-center mdui-spinner mdui-spinner-colorful" style="margin-top: 200px;"></div>
+</div>
+ <div class="mdui-center" id="line3" style="width:800px; height:400px;margin-top:100px;display:none;" ></div>
+
+
+      <script>
+        var chart = echarts.init(document.getElementById('bar'), 'black', {renderer: 'canvas'});
+        $(
+            function () {
+                fetchbarData(chart);
+                //setInterval(fetchbarData, 10000);
+            }
+        );
+
+        function fetchbarData() {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'hotelapp:_price' %}",
+                dataType: 'json',
+                timeout:5000,
+                success: function (result) {
+                    chart.setOption(result.data);
+                    $('#bar-hide').css('display','none');  // 组件完全隐藏，不占用显示时占用的位置
+                    $('#bar').css('display','block');   //在设置组件可以看
+                },
+                error : function(XMLHttpRequest,status) { //请求完成后最终执行参数
+                    if (status === 'timeout') {
+                        //超时,status还有success,error等值的情况
+                        $.ajax(this).abort();
+                        console.log("超时,已重试");
+                        $.ajax(this);
+                        return
+                    }
+                }
+            });
+
+        }
+    </script>
+    <script>
+        var line2chart = echarts.init(document.getElementById('line2'), 'black', {renderer: 'canvas'});
+        $(
+            function () {
+                fetchline2Data(chart);
+                //setInterval(fetchbarData, 10000);
+            }
+        );
+        function fetchline2Data() {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'hotelapp:_price_bar' %}",
+                dataType: 'json',
+                async: true,
+                timeout:5000,
+
+                success: function (result) {
+                    line2chart.setOption(result.data);
+                    $('#line2-hide').css('display','none');  // 组件完全隐藏，不占用显示时占用的位置
+                    $('#line2').css('display','block');   //在设置组件可以看
+                },
+                error : function(XMLHttpRequest,status) { //请求完成后最终执行参数
+                    if (status === 'timeout') {
+                        //超时,status还有success,error等值的情况
+                        $.ajax(this).abort();
+                        console.log("超时,已重试");
+                        $.ajax(this);
+                        return
+                    }
+                }
+            });
+
+        }
+    </script>
+
+    <script>
+        var line3chart = echarts.init(document.getElementById('line3'), 'black', {renderer: 'canvas'});
+        $(
+            function () {
+                fetchline3Data(chart);
+                //setInterval(fetchbarData, 10000);
+            }
+        );
+        function fetchline3Data() {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'hotelapp:_price_boxplot' %}",  //发布时间
+                dataType: 'json',
+                // async: false,
+                timeout:5000,
+                success: function (result) {
+                    line3chart.setOption(result.data);
+                $('#line3-hide').css('display','none');  // 组件完全隐藏，不占用显示时占用的位置
+                $('#line3').css('display','block');   //在设置组件可以看
+                },
+                error : function(XMLHttpRequest,status) { //请求完成后最终执行参数
+                    if (status === 'timeout') {
+                        //超时,status还有success,error等值的情况
+                        $.ajax(this).abort();
+                        console.log("超时,已重试");
+                        $.ajax(this);
+                        return
+                    }
+                }
+            });
+
+        }
+    </script>
+</div>
+
+{% endblock %}
+
+{% block tail %}
+
+
+{% endblock %}
+  </div>
+
+</div>
+
+</div>

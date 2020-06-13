@@ -1,0 +1,144 @@
+{% extends 'hotelapp/index_charts.html' %}
+{#多app的方案中template需要这样来引入，view中也是需要加上#}
+{% load static %}
+{% block title %}
+{{ app_name }}
+{% endblock %}
+
+{% block app_name %}
+{{ app_name }}
+{% endblock %}
+
+{% block name %}
+ <i class="mdui-icon material-icons">&#xe853;</i>登陆
+{% endblock %}
+
+{% block content %}
+{#    {% for one in articles %}#}
+{#        {{ one }}<br><br>#}
+
+{#    {% endfor %}#}
+
+
+
+
+    <div class="mdui-row">
+    <br>
+    <br>
+   <div class="mdui-table-fluid">
+  <table class="mdui-table">
+    <thead>
+      <tr>
+        <th>#</th>
+          <th>价格</th>
+        <th>房源名</th>
+{#        <th>原url</th>#}
+        <th>房源抓取日期</th>
+        <th>城市名</th>
+          <th>预览</th>
+      </tr>
+    </thead>
+    <tbody>
+
+    {% for object in articles %}
+     <tr>
+         <td>{{ object.house_id }}</td>
+         <td>{{ object.house_oriprice }}</td>
+        <td ><a href="{{ object.house_url }}" target="_blank">{{ object.house_title }}</a></td>
+{#        <td>{{ object.3 }}</td>#}
+        <td>{{ object.house_date }}</td>
+        <td>{{ object.house_cityName }}</td>
+        <td><img src="/{{ object.house_img}}" style="width: 100px;height: auto;"/></td>
+     </tr>
+    {% endfor %}
+
+    </tbody>
+  </table>
+</div>
+
+
+<br>
+<div class="mdui-row-xs-3 mdui-center" style="width: 300px;">
+  <div class="mdui-col">
+      {% if page.has_previous %}
+    <button class="mdui-btn mdui-btn-block mdui-ripple" mdui-tooltip="{content: '上一页',position:'top'}" onclick="window.location.href='?page={{page.previous_page_number}}'">
+        <i class="mdui-icon material-icons ">arrow_back</i></button>
+  {% else %}
+     <button class="mdui-btn mdui-btn-block mdui-ripple" mdui-tooltip="{content: '上一页',position:'top'}" disabled>
+         <i class="mdui-icon material-icons ">arrow_back</i></button>
+      {% endif %}
+  </div>
+    <div class="mdui-col">
+    <button class="mdui-btn mdui-btn-block mdui-ripple" mdui-tooltip="{content: '当前第{{ page.number }}页'}">
+        {{ page.number }}/{{ page.paginator.num_pages }}</button>
+  </div>
+  <div class="mdui-col">
+      {% if page.has_next %}
+    <button class="mdui-btn mdui-btn-block mdui-ripple" mdui-tooltip="{content: '下一页',position:'top'}" onclick="window.location.href='?page={{page.next_page_number}}'">
+        <i class="mdui-icon material-icons ">arrow_forward</i></button>
+    {% else %}
+     <button class="mdui-btn mdui-btn-block mdui-ripple" mdui-tooltip="{content: '下一页',position:'top'}" disabled><i class="mdui-icon material-icons ">arrow_forward</i></button>
+      {% endif %}
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+{#<img src="{% static 'media/default.jpg' %}"/>#}
+
+
+<script type="text/javascript">
+var varstring = "{{ success_info }}";
+if (varstring !=null){
+    if (varstring=="register_success"){
+        mdui.mutation();
+        mdui.snackbar({
+            message: '注册成功😘',
+            position:"bottom",
+            buttonColor:"red",
+        });
+    }else if(varstring=="password_change_success") {
+        mdui.mutation();
+        mdui.snackbar({
+            message: '密码修改成功😘',
+            position: "bottom",
+            buttonColor:"red",
+    });
+        }
+    }
+</script>
+
+
+    <div background="{% static 'img/back.jpg' %}" style=" background-repeat:no-repeat ;background-size:100% 100%;
+background-attachment: fixed;" xmlns:mdui.snackbar>
+
+<div class="mdui-card mdui-center"  mdui-shadow-10 style="width: 350px;margin-top:3.5cm;padding-bottom:10px;padding-left: 10px;padding-right: 10px;"  >
+    <h1 class="mdui-center mdui-text-center">登陆到数据分析系统</h1>
+    {% if error %} <p class="mdui-text-center mdui-text-color-pink" >{{ error }}</p> {% endif %}
+    <form class="form-horizontal" action="{% url 'hotelapp:user_login' %}" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input onclick="mdui.snackbar({message: '跳转中...'});" type="submit" class="mdui-center mdui-btn mdui-btn-raised mdui-color-white" value="登陆">
+        {% if form.errors %}
+           <front class="mdui-text-color-red"> {{  form.errors }}    </front>
+        {% endif %}
+    </form>
+</div>
+    <span class="mdui-center mdui-text-center">
+        <button href="{ %url 'hotelapp:password_forget' % }" class="mdui-btn mdui-text-center mdui-center mdui-text-coler-grey-200" style="margin-top: 20px;">忘记密码？</button>
+        <a  href="{% url 'hotelapp:user_register' %}" ><button class="mdui-btn mdui-text-center mdui-center mdui-text-coler-grey-100" style="margin-top: 20px;">还未注册？</button>
+        </a>
+    </span>
+
+{% endblock %}
+{% block tail %}
+{% endblock %}
+</div>

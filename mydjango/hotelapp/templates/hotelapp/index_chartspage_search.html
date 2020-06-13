@@ -1,0 +1,177 @@
+{% extends 'hotelapp/index_charts.html' %}
+    {% load city_tags %}
+
+{#多app的方案中template需要这样来引入，view中也是需要加上#}
+{% block title %}
+{{ app_name }}
+{% endblock %}
+
+
+{#{% block drawer_body %}mdui-drawer-body-left{% endblock %}#}
+
+{% block drawer_icon %}
+{% endblock %}
+
+{% block drawer %}
+
+{% endblock %}
+{#其中一个部分#}
+
+
+
+
+{% block app_name %}
+{{ app_name }}
+{% endblock %}
+
+{% block name %}
+{{ app_name }}
+{% endblock %}
+
+{% block content %}
+
+
+<div class="mdui-container">
+	<div class="totop"></div>
+    <div class="mdui-fab-wrapper" mdui-fab="">
+      <button id="totop" class="mdui-fab mdui-ripple mdui-color-theme-accent">
+    <i class="mdui-icon material-icons">vertical_align_top</i>
+      </button>
+    </div>
+
+<!--<form>-->
+<div class="mdui-center mdui-row" style="padding-bottom: 40px;">
+     <div class=" mdui-col-xs-9  mdui-btn-block">
+              <input  name="keyword" class="mdui-btn-block mdui-textfield-input" type="text"
+                      placeholder="房源位置关键词搜索,如:广州天河" required/>
+         <div id = "progress" style="display: none">
+             <div class="mdui-progress" >
+                 <div class="mdui-progress-indeterminate"></div>
+             </div>
+         </div>
+     </div>
+    <div class="mdui-col-xs-2  mdui-btn-block">
+        <button id="ajax_get" type="submit"  class="mdui-btn ">
+         <i class="mdui-icon material-icons">search</i>搜索
+        </button>
+    </div>
+
+</div>
+
+价格范围
+<label class="mdui-slider mdui-slider-discrete" style="width:400px;" >
+      <input id="money_range" type="range" step="10" min="50" max="5000" />
+</label>
+
+
+<!--</form>-->
+    <main id="main_content" style="padding-top: 50px;">
+            <h3 class="mdui-text-center" id ="hide">请输入关键词后进行搜索</h3>
+    </main>
+
+        <!--<label class="mdui-slider mdui-slider-discrete">-->
+          <!--<input type="range" step="1" min="0" max="8000"/>-->
+        <!--</label>-->
+    <script>
+        // $("#progress").hide();
+
+        var $$ = mdui.JQ;  //这个是为了使用工具提示
+            // $(document).ready(function() {
+
+                $("#ajax_get").click(function () {
+                      mdui.snackbar({
+                            message: '搜索中...'
+                          });
+
+                    var keyword = $('input[name="keyword"]').val();
+                    var money_range = $('input[id="money_range"]').val();
+                    // var city = $('input:radio:checked').val();
+                    // alert(keyword);
+                    if (keyword!==""){
+                        $("#progress").show();
+                        $("#ajax_get").attr("disabled", true);  //进度条去掉
+
+
+                        $.ajax({
+                                type: "POST",
+                                url: "{% url 'hotelapp:search_keyword' %}",
+                                dataType: 'json',
+                                data :{
+                                    keyword:keyword,
+                                    money_range:money_range,
+                                    // city:city,
+                                },
+                                timeout:90000,  //60秒
+                                // async: false,
+                                success: function (result) {
+                                    // alert(result.data);
+                                    // timeline_chart.setOption(result.data);
+                                    $('#hide').css('display', 'none');  // 组件完全隐藏，不占用显示时占用的位置
+                                    // $('#timeline').css('display', 'block');   //在设置组件可以看
+                                    $('#main_content').empty();  // 则清空那儿的内容，然后重新组合增加内容
+                                    $('#main_content').append(result.data.table.toString());
+                                     $("#progress").hide();  //进度条去掉
+                                     $("#ajax_get").attr("disabled", false);  //按钮可以重新点击
+
+                                }, error: function () {
+                                        //请求出错处理
+                                         mdui.snackbar({
+                                            message: '请求超时，请稍后再试！😱'
+                                          });
+                                          $("#progress").hide();  //进度条去掉
+                                         $("#ajax_get").attr("disabled", false);  //按钮可以重新点击
+                                    }
+                            });
+                    }else{
+                        mdui.snackbar({
+                            message: '请先输入关键字哦！'
+                          });
+                            // $("#ajax_get").attr("disabled", false);  //进度条去掉
+                            // $("#progress").hide();  //进度条去掉
+                    }
+                        });
+            // })
+    </script>
+
+<script>
+    //回到顶部
+    $(function(){
+			$totop = $('#totop');
+
+			$(window).scroll(function(){
+				// 获取滚动条滚动的高度
+				var iNum = $(document).scrollTop();
+				if(iNum>400){
+					$totop.fadeIn();
+				}
+				else
+				{
+					$totop.fadeOut();
+				}
+
+			});
+			$totop.click(function(){
+				$('html,body').animate({'scrollTop':0});
+			})
+
+
+		});
+
+
+</script>
+
+
+
+</div>
+
+
+{% endblock %}
+
+
+
+{% block tail %}
+{% endblock %}
+
+
+
+</div>
