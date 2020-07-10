@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 # import json
 import time
 
-from .parseTool import parsePriceMain
+from .parseTool import parsePriceMain,merge
 from ..items import HouseItem  # 导入转变过的Houseitem类
 from hotelapp.models import City # 为提取方便建立的城市类
 from fake_useragent import UserAgent
@@ -45,12 +45,13 @@ class HotwordspiderSpider(scrapy.Spider):
         'RETRY_HTTP_CODES': [404,403,406],  #重试
         'HTTPERROR_ALLOWED_CODES': [403],  #上面报的是403，就把403加入。
         "ITEM_PIPELINES": {
-            'myscrapy.pipelines.houseItemPipeline': 300,  # 启用这个管道来保存数据
+            # 'myscrapy.pipelines.houseItemPipeline': 300,  # 启用这个管道来保存数据
+           
 
         },
         "DOWNLOADER_MIDDLEWARES":{   # 这样就可以单独每个使用不同的配置
         'myscrapy.middlewares.RandomUserAgent': 100,   # 使用代理
-        'myscrapy.middlewares.proxyMiddleware': 301,  #  暂时不用代理来进行爬取测试下最多多少
+        # 'myscrapy.middlewares.proxyMiddleware': 301,  #  暂时不用代理来进行爬取测试下最多多少 要使用代理再来使用代理中间件
 
         },
         "DEFAULT_REQUEST_HEADERS": {
@@ -77,13 +78,16 @@ class HotwordspiderSpider(scrapy.Spider):
         pin = Pinyin()
         print("启动")
         guangdonglist = [pin.get_pinyin(i.replace("市", ""), "") for i in guangdong.split("、")]
-        for onecity in City.objects.all():  # todo 城市这儿先设置0：2 直接读取数据库中的
+        print("测试ingfixing")
+        print(City.objects.all()[:1])
+
+        for onecity in City.objects.all():  # fixing todo 城市这儿先设置0：2 直接读取数据库中的
             # print(i.city_
             # print(i.city_pynm)
             # 先抓取广东省内的
             # if onecity.city_pynm in guangdonglist: # 广东省内的才爬
             #     print("在广州")
-            for i in range(1, 18):  # 这儿最大（1，18） 1~ 17的意思
+            for i in range(1, 18):  # fixing 这儿最大（1，18） 1~ 17的意思
                 yield  scrapy.Request(url=f'https://minsu.meituan.com/{onecity.city_pynm}/pn{i}',
                 dont_filter=True,
                 callback=self.parse)   # 暂时还不是很懂发生了什么
@@ -185,6 +189,9 @@ class HotwordspiderSpider(scrapy.Spider):
 
         print("获取房主数据")
         tempUserScript = response.xpath("//*[@id='r-props-J-gallery']").xpath("text()")
+
+        priceUser = response.xpath("//*[@id='r-props-J-booking']").xpath("text()").extract()[0]  # 修改了对应的价格所在的区间
+
         UserJson = tempUserScript.extract()[0]
 
         # print(UserJson)
@@ -247,7 +254,10 @@ class HotwordspiderSpider(scrapy.Spider):
         if price == [0.00] or discountprice == [0.00]:
             try:
                 # print("字体解密成功")
-                price,discountprice = parsePriceMain(UserJson)
+                print("测试 UserJson 的东西！！！")
+                print("这个是UserJson")
+                # print(priceUser)
+                price,discountprice = merge(priceUser)  # fixing
                 price = [price]
                 discountprice = [discountprice]
                 # price = [0.00]# 这儿是原价
@@ -321,7 +331,7 @@ class HotwordspiderSpider(scrapy.Spider):
         try:
             # tempJson = json.loads("".join(tagList).replace("'",'"').strip().strip(":")
             dictString = json.loads(UserJson.strip("<!--").strip("-->").replace("'", '"'))
-            temp = dictString['product']['productTagInfoList']  # 头痛，重新来提取这个label，标签    todo
+            temp = dictString['product']['productTagInfoList']  
             discountList = {"1": [], "0": []}
             for i in temp:
                 #     print(i['tagName']," ",i['tagType']," ",i['styleType']," ",i['tagDesc'])

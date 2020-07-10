@@ -9,9 +9,9 @@
 
 
 
-scrapy使用djangoItem 库，来使用django的models。这样就可以使用scrapy将爬取到的数据通过django orm框架，然后在admin中可以直接显示出来。这样就可以很方便的统一数据库，并且因为使用了orm来操作，scrapy保存的时候更为方便，就是配置的时候麻烦点，故把合并后的模板放在这儿，😂功能就是合并好后方便以后结合这两个继续开发新的东西做准备
+scrapy使用djangoItem 库，来使用django的models。这样就可以使用scrapy将爬取到的数据通过django orm框架，然后在admin中可以直接显示出来。这样就可以很方便的统一数据库，并且因为使用了orm来操作，scrapy保存的时候更为方便，就是配置的时候麻烦点，故把合并后的模板放在这儿，😁功能就是合并好后方便以后结合这两个继续开发新的东西做准备
 
-## 大概的配置步骤
+## 大概的结合步骤
 
 
 
@@ -60,6 +60,21 @@ scrapy_djangoitem
 
 等，如果遇到提示说要安装再pip install 即可
 
+# 如何使用
+
+Django部分：  
+
++ 默认是mysql 123456 ，使用前根据需要修改mydjango中的settings.py数据库的配置。  
++ 之后需要先进入mydjango目录下 ，```python manage.py makemigrations```,以及```python manage.py migrate```
++ 再然后创建django管理员```python manage.py createsuperuser```
+
+scrapy部分：  
+
++ 然后再回到myscrapy中，先```scrapy crawl hotelcity``` ,先抓取城市
++ 之后就可以使用 ```scrapy crawl hotel``` 就可以进行爬取
+
+
+
 
 # 结果示范
 
@@ -68,15 +83,16 @@ scrapy_djangoitem
 预览地址：http://45.79.96.167 （单机勿压，供预览之用）
 
 预览账号：testor  
-预览密码： Testor66@22333
+预览密码：Testor66@22333
 
 # todo
 
 两个部分来进行工作：
 
-DJango部分：
+Django部分：
 
 1.增加更多数据挖掘算法相关的功能，或者对数据进行建模，进一步分析。
+2.测试账号的收藏夹为空时出现错误
 
 Scrapy部分：
 

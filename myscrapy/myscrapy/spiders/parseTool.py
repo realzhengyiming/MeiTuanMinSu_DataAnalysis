@@ -46,7 +46,8 @@ def getFontUrl(UserJson):
                     font_url = "https:"+ j
 
     # 提取字体成功
-#     print(font_url)
+    print("提取字体url成功")
+    # print(font_url)  
     return font_url
 
 
@@ -66,7 +67,6 @@ def download_font(img_url,imgName,path=None):
     except Exception as e:
         print(e)
 
-
 # 从字体文件中获得字形数据用来备用待对比
 def getGlyphCoordinates(filename):
     """
@@ -80,6 +80,9 @@ def getGlyphCoordinates(filename):
         # 剔除非数字的字体
         if key[0:3] == 'uni':  # 这样对比都行，我感觉有
             data[key] = list(font['glyf'][key].coordinates)
+    
+    print("对比成功！")
+    # print(data)
     return data
 
 
@@ -116,7 +119,8 @@ def splitABC(price_unicode):
     return temp_price_unicode  # 提取出简化大写的  4 0  这个是原价 ，折扣价才是280 所以
 
 
-def getBothSplit(UserJson):
+def getBothSplit(UserJson):  # 这个找找看，拆分出折扣价格和现在价格
+    print(UserJson)
     UserJson = UserJson.replace("\\", "").replace("'", '"')
     result_price = []
     result_discountprice = []
@@ -160,6 +164,8 @@ def unpickdict() -> dict:
 def parseNum(price_unicode_list,font_data):   # 只需要输入处理后的价格的unicode_list 就可以了
     temp_woff_value = ""
     label_dict = unpickdict()   # 直接文件中提取这个
+    # print(label_dict)
+    # print(font_data)
     for i in price_unicode_list:
         for key in font_data:
             # 加一个对小数点的判断
@@ -169,7 +175,7 @@ def parseNum(price_unicode_list,font_data):   # 只需要输入处理后的价�
                 if key[3:] == temp_i:
                     for label in label_dict:
                         if label_dict[label]==font_data[key]:
-                            # print(label)
+                            print(label)
                             temp_woff_value = temp_woff_value+ str(label)+"."
             else:
                 if key[3:] == i:
@@ -177,8 +183,10 @@ def parseNum(price_unicode_list,font_data):   # 只需要输入处理后的价�
                     for label in label_dict:
                         if label_dict[label]==font_data[key]:
                             # print(label)
-                            # print(str(label))
+                            print(str(label))
                             temp_woff_value += str(label)
+    print("result price previous")
+    print(temp_woff_value)
     return float(temp_woff_value)
 
 # print(parseNum(price_unicode_list,font_data))
@@ -194,6 +202,27 @@ def parsePriceMain(UserJson): # 测试用
     font_data = getFontData(font_url)
     real_price = parseNum(price_unicode_list,font_data)
     real_discount = parseNum(discountprice_unicode_list,font_data)
+    print("")
+    print(real_price)
+    print(real_discount)
+    return real_price,real_discount
+
+def merge(tempPriceJson):  # 更新后使用这个来进行字体解密
+    print("merge_testing")
+    print(os.path.abspath("."))
+    # 这个就相当于是main函数了 ，代码块
+    font_url = getFontUrl(tempPriceJson)  # 获得字体url
+    # 获得处理后的 price,discountprice 的unicode_list
+    price_unicode_list, discountprice_unicode_list = getBothSplit(tempPriceJson)  # 获得两个价格的对应码
+    print("提取到的价格代码")
+    print(price_unicode_list)
+    print(discountprice_unicode_list)
+    font_data = getFontData(font_url)
+    print(f"price_code {price_unicode_list}")
+    print(f"discountPrice_code  {discountprice_unicode_list}")
+    real_price = parseNum(price_unicode_list,font_data)
+    real_discount = parseNum(discountprice_unicode_list,font_data)
+    print("")
     print(real_price)
     print(real_discount)
     return real_price,real_discount

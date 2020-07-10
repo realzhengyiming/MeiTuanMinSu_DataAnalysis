@@ -102,7 +102,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': "scrapy_django",
         'USER': 'root',
-        'PASSWORD': 'Czcp1000fg,bsqtwmc.',
+        'PASSWORD': '123456',
         'OPTIONS': {
                 'charset':'utf8mb4',
                  # "init_command": "SET foreign_key_checks = 0;",
@@ -154,7 +154,7 @@ CACHES = {  # redis做缓存
         # 'LOCATION':"redis://127.0.0.1:6378/3",
         'OPTIONS':{
             "CLIENT_CLASS":"django_redis.client.DefaultClient",
-            'PASSWORD':'Zz123zxc',
+            'PASSWORD':'Zz123zxz',
         }
     }
 }
