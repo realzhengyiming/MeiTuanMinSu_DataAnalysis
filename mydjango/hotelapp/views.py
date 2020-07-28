@@ -76,18 +76,22 @@ def testindex(request):  # 测试页
     return render(request,'hotelapp/test.html',context={"article":result})
 
 
-@login_required(login_url='/hotelapp/loginpage/')  # 默认主页
+@login_required(login_url='/hotelapp/loginpage/')  # 详情页
 def detaillist(request):  # 数据列表页分页
     # userObj = models.Asset.objects.filter(~Q(asset_id='')
     username = request.user.username
     # 提取收藏夹
-    tempUser = User.objects.filter(username=username).first()
+    try:
+        tempUser = User.objects.filter(username=username).first()
+
     # print(tempUser)
     # print(type(tempUser))
-    fav = tempUser.favourite.fav_houses.all()
+        fav = tempUser.favourite.fav_houses.all()
+    except Favourite.DoesNotExist:
+        house_list = House.objects.filter(~Q(house_oriprice=0.00)).order_by("-house_date").order_by("-id")
+
+
     # 提取出价格，面积，城市，并且高分的
-
-
     if len(fav)==0:
         house_list = House.objects.filter(~Q(house_oriprice=0.00)).order_by("-house_date").order_by("-id")
     else:
