@@ -9,59 +9,59 @@ class extendHouse(admin.ModelAdmin):
     # 需要显示的字段信息
     list_display = ('house_id', 'house_title', 'house_date', 'house_oriprice', "house_cityName")
     search_fields = ('house_date',)
-
-    fieldsets = (
-        ['House_main_info', {
-            'fields': ('house_title', 'house_oriprice', 'house_type',
-                       'house_area',
-                       'house_kitchen',
-                       'house_living_room',
-                       'house_toilet',
-                       'house_bedroom',
-                       'house_capacity',
-                       'house_bed',),
-        }],
-        ["House_address", {
-            'fields': ('house_location_text',
-                       'house_location_lat',
-                       'house_location_lng',)
-        }],
-        ["City", {
-            'fields': ('house_cityName',)
-        }],
-        ["Host_info", {
-            'fields': ('house_host',)
-        }],
-        ["House_labels", {
-            'fields': ('house_labels',)
-        }],
-        ["house_facility", {
-            'fields': ('house_facility',)
-        }],
-        ["house_Scores", {
-            'classes': ("collapse",),  # css 收缩
-            'fields': (
-                # 'house_favcount',
-                       'house_commentNum',
-                       'house_descScore',
-                       'house_talkScore',
-                       'house_hygieneScore',
-                       'house_positionScore',
-                       'house_avarageScore',)
-        }],
-        ['Advance', {
-            'classes': ('collapse',),  # CSS
-            'fields': (
-                # 'house_id',
-                       'house_url',
-                       'house_date',
-                       'house_firstOnSale',
-                       'house_location_lat',
-                       'house_location_lng',
-                       'earliestCheckinTime',
-                       ),
-        }]
-    )
+    #
+    # fieldsets = (
+    #     ['House_main_info', {
+    #         'fields': ('house_title', 'house_oriprice', 'house_type',
+    #                    'house_area',
+    #                    'house_kitchen',
+    #                    'house_living_room',
+    #                    'house_toilet',
+    #                    'house_bedroom',
+    #                    'house_capacity',
+    #                    'house_bed',),
+    #     }],
+    #     ["House_address", {
+    #         'fields': ('house_location_text',
+    #                    'house_location_lat',
+    #                    'house_location_lng',)
+    #     }],
+    #     ["City", {
+    #         'fields': ('house_cityName',)
+    #     }],
+    #     ["Host_info", {
+    #         'fields': ('house_host',)
+    #     }],
+    #     ["House_labels", {
+    #         'fields': ('house_labels',)
+    #     }],
+    #     ["house_facility", {
+    #         'fields': ('house_facility',)
+    #     }],
+    #     ["house_Scores", {
+    #         'classes': ("collapse",),  # css 收缩
+    #         'fields': (
+    #             # 'house_favcount',
+    #                    'house_commentNum',
+    #                    'house_descScore',
+    #                    'house_talkScore',
+    #                    'house_hygieneScore',
+    #                    'house_positionScore',
+    #                    'house_avarageScore',)
+    #     }],
+    #     ['Advance', {
+    #         'classes': ('collapse',),  # CSS
+    #         'fields': (
+    #             # 'house_id',
+    #                    'house_url',
+    #                    'house_date',
+    #                    'house_firstOnSale',
+    #                    'house_location_lat',
+    #                    'house_location_lng',
+    #                    'earliestCheckinTime',
+    #                    ),
+    #     }]
+    # )
 
 
 class extendHost(admin.ModelAdmin):
