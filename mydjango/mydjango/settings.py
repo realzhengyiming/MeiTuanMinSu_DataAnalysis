@@ -18,7 +18,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 内置登录后跳转的页面
 LOGIN_REDIRECT_URL = "/hotelapp"
 
-
 APPEND_SLASH = False
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -47,9 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages', 
+    'django.contrib.messages',
     'django.contrib.staticfiles',
-    'hotelapp',   # /这个是最新的美团hotelapp ，这个调试好后继续载入
+    'hotelapp',  # /这个是最新的美团hotelapp ，这个调试好后继续载入
     # 'rest_framework',  # 这个库可以创造出符合resetful的api方便前后端分离
     'rest_framework',
 
@@ -57,7 +56,6 @@ INSTALLED_APPS = [
 # simple-ui
 SIMPLEUI_HOME_INFO = False
 SIMPLEUI_LOGO = "http://127.0.0.1/static/media/%E6%B0%91%E5%AE%BF.png"
-
 
 # AUTH_USER_MODEL = "hotelapp.myUser"  # 前面是封装了使用新的拓展User类来增加收藏夹字段
 DATA_UPLOAD_MAX_MEMORY_SIZE = None
@@ -92,7 +90,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mydjango.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
@@ -104,14 +101,13 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': '123456',
         'OPTIONS': {
-                'charset':'utf8mb4',
-                 # "init_command": "SET foreign_key_checks = 0;",
-                },     # 都该成这种编码，避免emoji无法存储
+            'charset': 'utf8mb4',
+            # "init_command": "SET foreign_key_checks = 0;",
+        },  # 都该成这种编码，避免emoji无法存储
         'HOST': "127.0.0.1",  # 要不要都改成远程的地址
         'PORT': '3306'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -131,15 +127,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
-LANGUAGE_CODE = 'zh-hans'  #'en-us'  # 界面语言
+LANGUAGE_CODE = 'zh-hans'  # 'en-us'  # 界面语言
 
 USE_TZ = True
 
-TIME_ZONE = 'Asia/Shanghai' #'UTC'  # 时区
+TIME_ZONE = 'Asia/Shanghai'  # 'UTC'  # 时区
 
 USE_I18N = True
 
@@ -152,36 +147,34 @@ CACHES = {  # redis做缓存
         'BACKEND': 'django_redis.cache.RedisCache',
         "LOCATION": "redis://127.0.0.1:6378/3",  # 本机django的redis缓存路径
         # 'LOCATION':"redis://127.0.0.1:6378/3",
-        'OPTIONS':{
-            "CLIENT_CLASS":"django_redis.client.DefaultClient",
-            'PASSWORD':'Zz123zxz',
+        'OPTIONS': {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            'PASSWORD': 'Zz123zxz',
         }
     }
 }
 
-
 # Static files (CSS, JavaScript, Images)
-    # https://docs.djangoproject.com/en/2.0/howto/static-files/
+# https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 # 这个是配置静态文件的目录的
 STATIC_URL = '/static/'
 # STATICFILES_DIRS = [    # 这个是为多app而准备的，这样就可以不同的app来这儿注册
-    # os.path.join(BASE_DIR, "seo_app", "static"),
-    # os.path.join(BASE_DIR, "site", "static"),
-    # os.path.join(BASE_DIR, "login", "static"),
+# os.path.join(BASE_DIR, "seo_app", "static"),
+# os.path.join(BASE_DIR, "site", "static"),
+# os.path.join(BASE_DIR, "login", "static"),
 # ]
 STATICFILES_DIRS = [
-      os.path.join(BASE_DIR, "/static/"),
+    os.path.join(BASE_DIR, "/static/"),
 ]
 # STATICFILES_DIRS = [   # 增加的 todo simpleui
 #      os.path.join(BASE_DIR, "static"),
 #  ]
 
 
-
 # 启用缓存,还没配好东西的时候可以不开这个，实际跑的时候可以开
 HTTPCACHE_ENABLED = True  # 这个
-#HTTPCACHE_EXPIRATION_SECS = 0
+# HTTPCACHE_EXPIRATION_SECS = 0
 HTTPCACHE_DIR = 'httpcache'  # 这个
-#HTTPCACHE_IGNORE_HTTP_CODES = []
-#HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+# HTTPCACHE_IGNORE_HTTP_CODES = []
+# HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
