@@ -9,7 +9,7 @@ from scrapy.exceptions import DropItem
 
 class urlItemPipeline(object):  # master专用管道
     def __init__(self):
-        self.redis_url = "redis://Zz123zxc:@localhost:6378/"  # master端是本地redis的
+        self.redis_url = "redis://Zz123zxc:@127.0.0.1:6378/"  # master端是本地redis的
         self.r = redis.Redis.from_url(self.redis_url,decode_response=True)
 
     def process_item(self, item, spider):

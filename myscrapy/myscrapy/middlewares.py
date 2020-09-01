@@ -12,7 +12,9 @@ import json
 import re
 # 这个是设置一个全局的变量
 import time
+from redis import StrictRedis, ConnectionPool
 import datetime
+
 
 # 配一个常量用来做为备用代理ip的这样一台机子就够了
 
@@ -20,7 +22,7 @@ class EnvironmentIP:  # 这儿设置一个全局变量，单例模式
     _env = None
 
     def __init__(self):
-        self.IP = 0   # 用那个计数的来操作就可以
+        self.IP = 0  # 用那个计数的来操作就可以
 
     @classmethod
     def get_instance(cls):
@@ -31,18 +33,21 @@ class EnvironmentIP:  # 这儿设置一个全局变量，单例模式
             cls._env == cls()
         return cls._env
 
-    def set_flag(self, IP): # 里面放的是数字
+    def set_flag(self, IP):  # 里面放的是数字
         self.IP = IP
 
     def get_flag(self):
         return self.IP
 
+
 envVarIP = EnvironmentIP()  # 这个变量是看是否切换使用代理的
+
 
 class EnvironmentFlag:  # 这儿设置一个全局变量，单例模式
     _env = None
+
     def __init__(self):
-        self.flag = False   # 默认不使用代理
+        self.flag = False  # 默认不使用代理
 
     @classmethod
     def get_instance(cls):
@@ -59,10 +64,13 @@ class EnvironmentFlag:  # 这儿设置一个全局变量，单例模式
     def get_flag(self):
         return self.flag
 
+
 envVarFlag = EnvironmentFlag()  # 这个变量是看是否切换使用代理的
+
 
 class Environment:  # 这儿设置一个全局变量，单例模式
     _env = None
+
     def __init__(self):
         self.countTime = datetime.datetime.now()
 
@@ -81,6 +89,7 @@ class Environment:  # 这儿设置一个全局变量，单例模式
     def get_countTime(self):
         return self.countTime
 
+
 envVar = Environment()  # 初始化一个默认的
 
 
@@ -98,7 +107,7 @@ class RandomUserAgent(object):  # ua中间件
         ua = UserAgent()
         print(ua.random)
         request.headers['User-Agent'] = ua.random
-        return None 
+        return None
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
@@ -108,11 +117,11 @@ class RandomUserAgent(object):  # ua中间件
         HTML = response.body.decode("utf-8")
         # print(HTML)
         print(HTML[:200])
-        try: 
+        try:
             # print('进来中间件调试')
-            if HTML.find("code")!=-1:
-                if re.findall('(?<=code\\"\\:).*?(?=\\,)',HTML)[0]=='406':
-                  # 自动会是双引号
+            if HTML.find("code") != -1:
+                if re.findall('(?<=code\\"\\:).*?(?=\\,)', HTML)[0] == '406':
+                    # 自动会是双引号
                     print("正在重新请求（网络不好）")
                     return request
         except Exception as e:
@@ -124,11 +133,10 @@ class RandomUserAgent(object):  # ua中间件
             if temp['code'] == 406:  #
                 print("正在重新请求（网络不好）状态码406")
                 request.meta["code"] = 406
-                return request    # 重新发给调度器，重新请求
+                return request  # 重新发给调度器，重新请求
         except Exception as e:
             print(e)
         return response
-
 
     def process_exception(self, request, exception, spider):
         # Must either:
@@ -147,9 +155,8 @@ class proxyMiddleware(object):  # 代理中间件
 
     def __init__(self):
         # self.count = 0
-        from redis import StrictRedis, ConnectionPool
         # 使用默认方式连接到数据库
-        pool = ConnectionPool(host='localhost', port=6378, db=0,password='Zz123zxc')
+        pool = ConnectionPool(host='127.0.0.1', port=6378, db=0, password='Zz123zxc')
         self.redis = StrictRedis(connection_pool=pool)
 
     @classmethod
@@ -166,7 +173,7 @@ class proxyMiddleware(object):  # 代理中间件
 
     def process_request(self, request, spider):
         # 这儿是用来代理的
-        remote_iplist = ['47.115.131.115:8888','47.95.117.209:1521']
+        remote_iplist = ['47.115.131.115:8888', '47.95.117.209:1521']
         print()
         print("proxyMiddleware")
         # print(proxyMiddleware.MYTIME)
@@ -181,9 +188,9 @@ class proxyMiddleware(object):  # 代理中间件
         print("变量状态{True}才使用代理")
         print(envVarFlag.get_flag())
         print("相减少后的结果")
-        print((now-envVar.get_countTime()).seconds / 40)
-        if envVarFlag.get_flag() ==True:  #envVarFlag.get_flag() == True:  # 好像还不如不用这个代理呢，垃圾
-            if (now-envVar.get_countTime()).seconds / 20 >= 1:
+        print((now - envVar.get_countTime()).seconds / 40)
+        if envVarFlag.get_flag() == True:  # envVarFlag.get_flag() == True:  # 好像还不如不用这个代理呢，垃圾
+            if (now - envVar.get_countTime()).seconds / 20 >= 1:
                 envVarFlag.set_flag(not envVarFlag.get_flag())  # 切换为使用代理
                 envVar.set_countTime(now)
             print("使用代理中池中的ip")
@@ -192,21 +199,21 @@ class proxyMiddleware(object):  # 代理中间件
                 proxy_address = self.get_proxy_address()
                 if proxy_address is not None:
                     print(f'代理IP --  {proxy_address}')
-                    request.meta['proxy'] = f"http://{proxy_address}"   # 出现了302的话就有可能是因为代理的类型不对，有可能
+                    request.meta['proxy'] = f"http://{proxy_address}"  # 出现了302的话就有可能是因为代理的类型不对，有可能
                 else:
                     print("代理池中没有代理ip存在")
             except Exception as e:
                 print("检查到代理池里面已经没有ip了,使用本地")
         else:  # 不使用代理,这儿轮流使用本地ip和外面的ip
-            if (now-envVar.get_countTime()).seconds / 40 >= 1:  # 这个进来是切换状态的
+            if (now - envVar.get_countTime()).seconds / 40 >= 1:  # 这个进来是切换状态的
                 envVarFlag.set_flag(not envVarFlag.get_flag())  # 切换为使用代理
                 envVar.set_countTime(now)
 
-            if envVarIP.get_flag() <= len(remote_iplist)-1:   ## 直接本地，也用用代理的吧
+            if envVarIP.get_flag() <= len(remote_iplist) - 1:  ## 直接本地，也用用代理的吧
                 remoteip = remote_iplist[envVarIP.get_flag()]
                 print(f'使用远程ip --  {remoteip}')
                 request.meta['proxy'] = f"http://{remoteip}"
-                envVarIP.set_flag(envVarIP.get_flag()+1)
+                envVarIP.set_flag(envVarIP.get_flag() + 1)
             else:
                 envVarIP.set_flag(0)  # 把这个ip设置成0,这个是使用本地的ip
                 print("使用到本地ip")
