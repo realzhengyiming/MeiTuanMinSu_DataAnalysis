@@ -28,11 +28,11 @@ urlpatterns = [
     path("/loginpage/",views.loginPage, name="user_login"),
     path('/logout/',views.userLogout, name="user_logout"),
     path("/register/",views.register, name="user_register"),
-    path('/password-change/', auth_views.password_change,
+    path('/password-change/', auth_views.PasswordChangeView,
          {'post_change_redirect': '/hotelapp/?success_info=password_change_success',
             'template_name':"hotelapp/password_change_form.html" #, 'extra_context':{"success_info":"password_change_success"}
           },name="password_change"),  # html页面默认在registration内，修改了页面
-    path('/password-change-done/', auth_views.password_change_done,
+    path('/password-change-done/', auth_views.PasswordChangeDoneView,
          {'template_name':"hotelapp/index_chartspage.html"}, name="password_change_done"),
     path("/detail/",views.detailView,name="detail"),
     path("/detaillist/",views.detaillist,name="detaillist"),
