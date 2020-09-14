@@ -131,7 +131,6 @@ def bar_base() -> Bar:  # 返回给前端用来显示图的json设置,按城市�
             .add_yaxis("房源数量", [city['count'] for city in count_total_city])
             # .add_yaxis("商家B", [randrange(0, 100) for _ in range(6)])
             # .set_global_opts(title_opts=opts.TitleOpts(title="总房屋类型"))
-
             .set_global_opts(title_opts=opts.TitleOpts(title="今天城市房源数量", subtitle="如图"),
                              xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=-90)),
                              )
@@ -187,7 +186,7 @@ class getMonthPostTime2(APIView):  # 按各个月份来进行统计
     def get(self, request, *args, **kwargs):
         result = fetchall_sql(
             '''select DATE_FORMAT(house_firstOnSale,'%m') as mydate,count(DATE_FORMAT(house_firstOnSale,'%Y-%m'))as mydate_count from hotelapp_house group by mydate ORDER BY mydate'''
-            )
+        )
         context = {"result": result}
         # for i in result:
         #     print(i)
@@ -661,7 +660,8 @@ class get_hostDraw(APIView):  # 按月份分，或者按年分
         temp_df = cache.get('host_result', None)  # 使用缓存，可以共享真好。
         if temp_df is None:  # 如果无，则向数据库查询数据
             print("host,重新查询")
-            result = fetchall_sql_dict('''SELECT distinct host_id,host_name,host_RoomNum,host_replayRate,host_commentNum FROM `hotelapp_host` order by host_RoomNum DESC''')
+            result = fetchall_sql_dict(
+                '''SELECT distinct host_id,host_name,host_RoomNum,host_replayRate,host_commentNum FROM `hotelapp_host` order by host_RoomNum DESC''')
             temp_df = pd.DataFrame(result)
             # 都使用df来进行处理和显示
             # temp_df.index = pd.to_datetime(temp_df.house_firstOnSale)
@@ -709,7 +709,8 @@ class get_hostReplay(APIView):
         temp_df = cache.get('host_result', None)  # 使用缓存，可以共享真好。
         if temp_df is None:  # 如果无，则向数据库查询数据
             print("host,重新查询")
-            result = fetchall_sql_dict('''SELECT distinct host_id,host_name,host_RoomNum,host_replayRate,host_commentNum FROM `hotelapp_host` order by host_RoomNum DESC''')
+            result = fetchall_sql_dict(
+                '''SELECT distinct host_id,host_name,host_RoomNum,host_replayRate,host_commentNum FROM `hotelapp_host` order by host_RoomNum DESC''')
             temp_df = pd.DataFrame(result)
             # 都使用df来进行处理和显示
             # temp_df.index = pd.to_datetime(temp_df.house_firstOnSale)
@@ -1124,7 +1125,7 @@ class area_bar(APIView):
             Bar()
                 .add_xaxis(x)
                 .add_yaxis("频数", y, category_gap=0, color=Faker.rand_color())
-                .set_global_opts(title_opts=opts.TitleOpts(title="房源面积分布",subtitle="面积单位m²"),
+                .set_global_opts(title_opts=opts.TitleOpts(title="房源面积分布", subtitle="面积单位m²"),
                                  xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=-90)),
                                  )
                 # .render("bar_histogram_color.html")
@@ -1149,7 +1150,7 @@ class area_price_scatter(APIView):  # 价格和面积的散点图
         from pyecharts.faker import Faker
         print(temp_df.columns.values.tolist())
         temp_df = temp_df[(temp_df['house_area'] < 200.00) & (temp_df['house_oriprice'] < 1000)]
-                          # (temp_df['house_cityName'] == "惠州")]  # 200平方米都是不对的了
+        # (temp_df['house_cityName'] == "惠州")]  # 200平方米都是不对的了
         temp_df = temp_df.sort_values(by="house_area")
         c = (
             Scatter()
@@ -1169,7 +1170,6 @@ class area_price_scatter(APIView):  # 价格和面积的散点图
                 .set_global_opts(
                 datazoom_opts={'max_': 2, 'orient': "horizontal", 'range_start': 10, 'range_end': 20,
                                'type_': "inside"})
-
 
                 # .set_global_opts(
                 # datazoom_opts={'max_': 2, 'orient': "vertical", 'range_start': 10, 'range_end': 20,
@@ -1194,8 +1194,7 @@ class area_price_location_scatter(APIView):  # 绘制出了 matplotlibd的图
         from pyecharts import options as opts
         from pyecharts.charts import Geo
 
-
-        temp_df = temp_df[(temp_df['house_area'] < 500.00) & (temp_df['house_oriprice'] < 6000)] # &
+        temp_df = temp_df[(temp_df['house_area'] < 500.00) & (temp_df['house_oriprice'] < 6000)]  # &
         #                   (temp_df['house_cityName'] == "惠州")]  # 200平方米都是不对的了
         temp_df['house_oriprice'] = temp_df['house_oriprice'].astype("float")
         temp_df['house_area'] = temp_df['house_area'].astype("float")
@@ -1235,25 +1234,24 @@ class area_price_location_scatter(APIView):  # 绘制出了 matplotlibd的图
         plt.figure(figsize=(15, 10))
         plt.subplots_adjust(hspace=0.8)
 
-        sns.set(font='simhei',font_scale=1.5)
-        
-        ax=sns.lmplot(x="house_area", y="house_oriprice",
-                      hue="house_type",
-                      col="house_type",
-                      sharex=True,
-                      col_wrap=1,
-                      x_jitter = True,
-                      y_jitter=True,
-                      # col="house_type",
+        sns.set(font='simhei', font_scale=1.5)
 
+        ax = sns.lmplot(x="house_area", y="house_oriprice",
+                        hue="house_type",
+                        col="house_type",
+                        sharex=True,
+                        col_wrap=1,
+                        x_jitter=True,
+                        y_jitter=True,
+                        # col="house_type",
 
-                      # size=3,
-                      data=temp_df,aspect=3,height=4,ci=0.90,
-                      palette="husl",
-                      scatter_kws={'alpha': 0.20}
-                   # markers=["o", "x",''],
-                   # palette="Set1"
-                   )
+                        # size=3,
+                        data=temp_df, aspect=3, height=4, ci=0.90,
+                        palette="husl",
+                        scatter_kws={'alpha': 0.20}
+                        # markers=["o", "x",''],
+                        # palette="Set1"
+                        )
 
         # ax = sns.regplot(data=temp_df,
         #                  # hue = "house_type",
@@ -1264,8 +1262,6 @@ class area_price_location_scatter(APIView):  # 绘制出了 matplotlibd的图
         ax.set(xlabel='房屋面积/平方', ylabel='房屋价格/元')
         # ax.set_titles("不同类型房源面积和房价的线性回归关系")
         plt.legend(loc='center right', bbox_to_anchor=(1, 0.1), ncol=1)
-
-
 
         # 这部分是图片转化为base64 还能这样用厉害了
         buffer = BytesIO()  # 这个是从io中来导入这个东西
@@ -1300,22 +1296,22 @@ class house_content(APIView):
         from pyecharts.charts import Grid, Liquid
         from pyecharts.commons.utils import JsCode
 
-        temp_toilet  = round(len(temp_df[temp_df['house_toilet'] > 0]) / len(temp_df), 2)
-        temp_living  = round(len(temp_df[temp_df['house_living_room'] > 0]) / len(temp_df), 2)
+        temp_toilet = round(len(temp_df[temp_df['house_toilet'] > 0]) / len(temp_df), 2)
+        temp_living = round(len(temp_df[temp_df['house_living_room'] > 0]) / len(temp_df), 2)
         temp_kitchen = round(len(temp_df[temp_df['house_kitchen'] > 0]) / len(temp_df), 2)
 
         l1 = (
             Liquid().add("房源厨房占比",
-                     [temp_kitchen],
-                     center=["20%", "30%"],
-                     # shape="roundRect",
-                     label_opts=opts.LabelOpts(
-                         font_size=20,
-                         formatter="房源厨房占比:{c}",
-                         position="inside",
-                     ),is_outline_show=False,
-                     )
-                # .set_global_opts(title_opts=opts.TitleOpts(title="多个 Liquid 显示"))
+                         [temp_kitchen],
+                         center=["20%", "30%"],
+                         # shape="roundRect",
+                         label_opts=opts.LabelOpts(
+                             font_size=20,
+                             formatter="房源厨房占比:{c}",
+                             position="inside",
+                         ), is_outline_show=False,
+                         )
+            # .set_global_opts(title_opts=opts.TitleOpts(title="多个 Liquid 显示"))
         )
 
         l2 = Liquid().add(
@@ -1343,18 +1339,18 @@ class house_content(APIView):
         )
 
         c = (
-                Grid()
+            Grid()
                 .add(l1, grid_opts=opts.GridOpts())
                 .add(l2, grid_opts=opts.GridOpts())
                 .add(l3, grid_opts=opts.GridOpts())
 
-                    .dump_options_with_quotes()
+                .dump_options_with_quotes()
         )
         return JsonResponse(json.loads(c))
 
 
 # 生成线性预测模型
-def make_linear_model(cityName, house_type, predict_point,df):
+def make_linear_model(cityName, house_type, predict_point, df):
     if type(predict_point) == "str":
         predict_point = float(predict_point)
     from sklearn.linear_model import LinearRegression  # 导入线性模型sklearn
@@ -1378,7 +1374,7 @@ def make_linear_model(cityName, house_type, predict_point,df):
                                                         test_size=0.2,
                                                         random_state=0)  # 种子
     print(u'划分行数:', "[总数据量]", len(temp_data), "   [训练集]", len(train_X), "   [测试集]", len(test_X))
-    temp_massage = f"[总数据量]:{len(temp_data)}   [训练集]:{len(train_X)}   [测试集]:{ len(test_X)}"
+    temp_massage = f"[总数据量]:{len(temp_data)}   [训练集]:{len(train_X)}   [测试集]:{len(test_X)}"
 
     # 训练模型
     clf = LinearRegression()
@@ -1388,11 +1384,11 @@ def make_linear_model(cityName, house_type, predict_point,df):
     #     print(clf.intercept_  )# \beta _{0}，截距，默认有截距
     temp_y = ""
     if clf.intercept_ < 0:
-        print(f"{round(clf.coef_[0],4)}*x{ round(clf.intercept_,4)}")
-        temp_y = f"{round(clf.coef_[0],4)}*x{ round(clf.intercept_,4)}"
+        print(f"{round(clf.coef_[0], 4)}*x{round(clf.intercept_, 4)}")
+        temp_y = f"{round(clf.coef_[0], 4)}*x{round(clf.intercept_, 4)}"
     else:
-        print(f"{round(clf.coef_[0],4)}*x+{ round(clf.intercept_,4)}")
-        temp_y = f"{round(clf.coef_[0],4)}*x+{ round(clf.intercept_,4)}"
+        print(f"{round(clf.coef_[0], 4)}*x+{round(clf.intercept_, 4)}")
+        temp_y = f"{round(clf.coef_[0], 4)}*x+{round(clf.intercept_, 4)}"
 
     plt.figure(figsize=(15, 10))
     plt.xlim(10, 200)
@@ -1406,15 +1402,16 @@ def make_linear_model(cityName, house_type, predict_point,df):
     plt.scatter(train_X, train_y, color="blue", alpha=alpha_num, label="训练集")  # , marker='^
     plt.scatter(test_X, test_y, color="green", alpha=alpha_num, label="测试集")  # , marker='^
     predict_y = clf.predict([[predict_point]])
-    predict_y  = round(float(predict_y[0]),2)  # 保留了两位小数
+    predict_y = round(float(predict_y[0]), 2)  # 保留了两位小数
     #     print(f"预测结果{predict_y}")
-    plt.text(predict_point, predict_y, (predict_point,predict_y), color='r',fontsize=20,fontweight="heavy")  # 标记出来
-    plt.scatter(predict_point, predict_y,marker="x",s=200, color="red", label=f"预测点\n({predict_point},{predict_y})")  # , marker='^
+    plt.text(predict_point, predict_y, (predict_point, predict_y), color='r', fontsize=20, fontweight="heavy")  # 标记出来
+    plt.scatter(predict_point, predict_y, marker="x", s=200, color="red",
+                label=f"预测点\n({predict_point},{predict_y})")  # , marker='^
     plt.plot(train_X, clf.predict(train_X.reshape(-1, 1)), label=f"训练的回归直线\n{temp_y}")
 
     #     plt.scatter(predict_y, predict_y[0], color="red",label="预测点" ) # , marker='^
 
-    plt.legend(loc="upper right",prop={'size':20})
+    plt.legend(loc="upper right", prop={'size': 20})
     plt.xlabel("房源面积", fontsize=20)
     plt.ylabel("房源价格", fontsize=20)
     plt.title(f"{cityName}-{house_type}-房源面积-价格 线性回归预测", fontsize=20)
@@ -1426,20 +1423,23 @@ def make_linear_model(cityName, house_type, predict_point,df):
     plot_data = buffer.getvalue()
     imb = base64.b64encode(plot_data)  # 对plot_data进行编码
     ims = imb.decode()
-    imd = "data:image/png;base64," + ims   # 这个很重要不然显示不了
-
+    imd = "data:image/png;base64," + ims  # 这个很重要不然显示不了
 
     print("测试得分")
     print(clf.score(test_X.reshape(-1, 1), test_y))  # 测试的结果R2的预测值是这么多，所以还是比较可信的
     temp_Score = clf.score(test_X.reshape(-1, 1), test_y)
-    return clf, temp_massage, temp_y, temp_Score, imd, predict_y,temp_massage  # 模型，条件消息，训练得到的参数，训练R方结果，输出的图片,面积预测的结果
+    return clf, temp_massage, temp_y, temp_Score, imd, predict_y, temp_massage  # 模型，条件消息，训练得到的参数，训练R方结果，输出的图片,面积预测的结果
+
 
 # type(make_linear_model("深圳", "单间", 40))
 
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+
+
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
         return  # To not perform the csrf check previously happening
+
 
 class predictPrice(APIView):  # 绘制出了 matplotlibd的图
     # @method_decorator(csrf_exempt)  # 给类里面的方法加装饰器  需要导入一个方法method_decorator
@@ -1449,7 +1449,7 @@ class predictPrice(APIView):  # 绘制出了 matplotlibd的图
         house_cityName = request.data.get('cName')
         house_type = request.data.get('htype')
         house_area = request.data.get('harea')
-        if house_type == None or house_area=="":
+        if house_type == None or house_area == "":
             return JsonError({"info": "请携带正确的参数后进行预测"})
 
         # house_cityName = request.GET.get("cName")  # 提取出house_id
@@ -1457,10 +1457,9 @@ class predictPrice(APIView):  # 绘制出了 matplotlibd的图
         # house_area = request.GET.get("harea")  # 提取出house_id
         print("house_area")
         print(house_area)
-        if house_cityName == None or house_type==None or house_area == None:
+        if house_cityName == None or house_type == None or house_area == None:
             return JsonError({"info": "请携带正确的参数后进行预测"})
         house_area = float(house_area)  # 转为float
-
 
         temp_df = cache.get('predict_area_price', None)  # 使用缓存，可以共享真好。
         if temp_df is None:  # 如果无，则向数据库查询数据
@@ -1472,7 +1471,6 @@ class predictPrice(APIView):  # 绘制出了 matplotlibd的图
             # temp_df.index = pd.to_datetime(temp_df.house_firstOnSale)
             temp_df = pd.DataFrame(result)
             cache.set('predict_area_price', temp_df, 3600 * 12)  # 设置缓存
-
 
         # temp_df = temp_df[(temp_df['house_area'] < 500.00) & (temp_df['house_oriprice'] < 6000)]  # &
         temp_df['house_oriprice'] = temp_df['house_oriprice'].astype("float")
@@ -1497,14 +1495,13 @@ class predictPrice(APIView):  # 绘制出了 matplotlibd的图
         # ax.set_titles("不同类型房源面积和房价的线性回归关系")
         # plt.legend(loc='center right', bbox_to_anchor=(1, 01), ncol=1)
         # 模型，条件消息，训练得到的参数表达式，训练R方结果，输出的图片,面积预测的结果
-        model,message,y_function,R2,imd,predict_result,temp_massage = model_result
+        model, message, y_function, R2, imd, predict_result, temp_massage = model_result
         context = {
             'img': imd,
             # 'message':message,
-            'y_function':y_function,
-            'R2':R2,
-            'predict_result':predict_result,  # 训练的结果
-            'temp_massage':temp_massage,
+            'y_function': y_function,
+            'R2': R2,
+            'predict_result': predict_result,  # 训练的结果
+            'temp_massage': temp_massage,
         }
         return JsonResponse(context)
-
