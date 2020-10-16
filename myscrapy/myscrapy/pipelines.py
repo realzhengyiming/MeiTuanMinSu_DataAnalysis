@@ -1,36 +1,40 @@
 # -*- coding: utf-8 -*-
 import redis
-from hotelapp.models import House,Facility,Host,Labels  # settings中设置好了路径，这儿可以直接app导入django模型
+from hotelapp.models import House, Facility, Host, Labels  # settings中设置好了路径，这儿可以直接app导入django模型
 import pymysql
-from .items import HouseItem,CityItem  # 只导入这个演变的类就可以，其他几个是多对多
+from .items import HouseItem, CityItem  # 只导入这个演变的类就可以，其他几个是多对多
 from .items import urlItem  # master专用
 from scrapy.exceptions import DropItem
+
+
 # todo 标签lable怎么又看不到了。
 
 class urlItemPipeline(object):  # master专用管道
     def __init__(self):
         self.redis_url = "redis://Zz123zxc:@127.0.0.1:6378/"  # master端是本地redis的
-        self.r = redis.Redis.from_url(self.redis_url,decode_response=True)
+        self.r = redis.Redis.from_url(self.redis_url, decode_response=True)
 
     def process_item(self, item, spider):
         if isinstance(item, urlItem):
             print("urlItem item")
-            try :
+            try:
                 # item.save()
-                self.r.lpush("Meituan:start_urls",item['url'])
+                self.r.lpush("Meituan:start_urls", item['url'])
             except Exception as e:
                 print(e)
         return item
+
 
 class cityItemPipeline(object):
     def process_item(self, item, spider):
         if isinstance(item, CityItem):
             print("CityItem item")
-            try :
+            try:
                 item.save()
             except Exception as e:
                 print(e)
         return item
+
 
 class houseItemPipeline(object):
     def __init__(self):
@@ -50,18 +54,19 @@ class houseItemPipeline(object):
                 print(item)
                 return item
 
-            jsonString = item.get("jsonString")  
-            labelsList = jsonString['Labels']  
-            facilityList = jsonString['Facility']  
-            hostInfos = jsonString['Host']     
+            jsonString = item.get("jsonString")
+            labelsList = jsonString['Labels']
+            facilityList = jsonString['Facility']
+            hostInfos = jsonString['Host']
 
             # house = House.objects.filter(**{'house_id':item.get("house_id"),"house_date":item.get("house_date")}).first()  
             # 查询一次就可以,多条件查询，查询两个联合的主键
             # 这儿是标签的多对多写入
             for onetype in labelsList:  # 1.添加所有标签的
                 for one in labelsList[onetype]:  # one都是一个标签
-                    try:   # 先找找有没有，然后把已经有的添加进来
-                        label = Labels.objects.filter(**{'label_name':one[0],"label_desc":one[1]})  # 找到的话就直接加入另一个Meiju对象中
+                    try:  # 先找找有没有，然后把已经有的添加进来
+                        label = Labels.objects.filter(
+                            **{'label_name': one[0], "label_desc": one[1]})  # 找到的话就直接加入另一个Meiju对象中
                         # print("长度")
                         if len(label) == 0:
                             # print("需要创建后添加")
@@ -71,7 +76,7 @@ class houseItemPipeline(object):
                             # print("检查label")
                             # print(f"onetype:{onetype}")
                             # print(one)
-                            if onetype == "1":   # 优惠标签
+                            if onetype == "1":  # 优惠标签
                                 l.label_type = 1  # 数字也行把，应该，这儿没改
                             else:
                                 l.label_type = 0
@@ -87,7 +92,6 @@ class houseItemPipeline(object):
                         print(e)
                         print("label已存在，跳过插入")
                         # print(e)
-                        
 
             # 这儿开始是Facility的写入
             # print(facilityList)
@@ -95,8 +99,8 @@ class houseItemPipeline(object):
             for facility in facilityList:
                 if 'metaValue' in facility:
                     print()  # 执行先检查后添加
-                    try:   # 先找找有没有，然后把已经有的添加进来
-                        fac = Facility.objects.filter(**{'facility_name':facility['value']})  # 找到的话就直接加入另一个Meiju对象中
+                    try:  # 先找找有没有，然后把已经有的添加进来
+                        fac = Facility.objects.filter(**{'facility_name': facility['value']})  # 找到的话就直接加入另一个Meiju对象中
                         # print("长度")
                         if len(fac) == 0:
                             # print("需要创建后添加")
@@ -122,10 +126,10 @@ class houseItemPipeline(object):
                  'host_replayRate': '100'}'''
             print(hostInfos)
 
-            try:   # 先找找有没有，然后把已经有的添加进来,fixing
+            try:  # 先找找有没有，然后把已经有的添加进来,fixing
                 hosts = Host.objects.filter(**{
-                    'host_id':hostInfos['hostId'],
-                'host_updateDate':house.house_date})  # 找到的话就直接加入另一个Meiju对象中
+                    'host_id': hostInfos['hostId'],
+                    'host_updateDate': house.house_date})  # 找到的话就直接加入另一个Meiju对象中
                 print("长度")
                 print("输出查找到的结果")
                 print(hosts)
@@ -145,7 +149,7 @@ class houseItemPipeline(object):
                     house.house_host.add(l)
                 except Exception as e:
                     print(e)
-                # else:
+                    # else:
                     # print("不为空找到了")
                     # print("__label_")
                     # print(fac)

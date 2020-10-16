@@ -28,7 +28,7 @@ ROBOTSTXT_OBEY = False
 
 COOKIES_ENABLED = False   # 这个也是试试，防止被反爬403
 
-# 然后这儿是设置django的，为了能够导入django的item
+# 然后这儿是设置django的，为了能够导入django的item，导包的这种方式会很烦，耦合性太高了不好，但是pymysql又会失败
 import os
 import sys
 import django
